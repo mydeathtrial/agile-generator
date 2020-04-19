@@ -1,0 +1,19 @@
+agile:
+  generator:
+    entity-prefix: ''
+    entity-suffix: Entity
+    entity-url: D:\workspace-agile\agile-generator\src\main\java\com\agile\common\entity
+    service-prefix: ''
+    service-suffix: Service
+    service-url: D:\workspace-agile\agile-generator\src\main\java\com\agile\common\service
+    test-prefix: ''
+    test-suffix: ServiceTest
+    test-url: D:\workspace-idss\agile\test\main\java\com\agile\mvc\service
+    table-name: 'sys_user'
+    annotation: HibernateValidate,JPA
+    keywords: order,dec,desc
+spring:
+  datasource:
+    url: jdbc:mysql://192.168.0.204:3306/dsmc?serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL&autoReconnect=true&allowPublicKeyRetrieval=true
+    username: root
+    password: mysql@1234
