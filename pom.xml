@@ -78,4 +78,10 @@
             </resource>
         </resources>
     </build>
+    <distributionManagement>
+        <repository>
+            <id>agile</id>
+            <url>http://10.10.10.9:8081/nexus/content/repositories/agile/</url>
+        </repository>
+    </distributionManagement>
 </project>

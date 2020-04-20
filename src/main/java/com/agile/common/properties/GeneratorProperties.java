@@ -120,6 +120,15 @@ public class GeneratorProperties {
         columnType.put("tinytext", "java.lang.String");
         columnType.put("longtext", "java.lang.String");
         columnType.put("character", "java.lang.String");
+
+        keywords.add("order");
+        keywords.add("dec");
+        keywords.add("desc");
+        keywords.add("name");
+        keywords.add("code");
+        keywords.add("status");
+        keywords.add("where");
+        keywords.add("select");
     }
 
     public String getEntityUrl() {
