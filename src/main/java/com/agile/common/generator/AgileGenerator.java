@@ -6,7 +6,7 @@ import com.agile.common.properties.GeneratorProperties;
 import com.agile.common.util.DataBaseUtil;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.FreemarkerUtil;
-import com.agile.common.util.ObjectUtil;
+import com.agile.common.util.object.ObjectUtil;
 import com.agile.common.util.PropertiesUtil;
 import freemarker.template.TemplateException;
 import org.slf4j.Logger;

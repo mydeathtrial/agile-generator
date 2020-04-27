@@ -6,8 +6,8 @@ import com.agile.common.properties.ApplicationProperties;
 import com.agile.common.properties.GeneratorProperties;
 import com.agile.common.util.DataBaseUtil;
 import com.agile.common.util.FactoryUtil;
-import com.agile.common.util.ObjectUtil;
-import com.agile.common.util.StringUtil;
+import com.agile.common.util.object.ObjectUtil;
+import com.agile.common.util.string.StringUtil;
 import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -79,7 +79,7 @@ public class TableModel {
 
         this.serviceName = properties.getServicePrefix() + javaName + properties.getServiceSuffix();
         this.entityName = properties.getEntityPrefix() + javaName + properties.getEntitySuffix();
-        this.entityCenterLineName = StringUtil.camelToSpilt(javaName, Constant.RegularAbout.MINUS).toLowerCase();
+        this.entityCenterLineName = StringUtil.toUnderline(javaName).replace(Constant.RegularAbout.UNDER_LINE, Constant.RegularAbout.MINUS).toLowerCase();
     }
 
     public void setImport(Set<Class<?>> classes) {

@@ -5,7 +5,7 @@ import com.agile.common.base.Constant;
 import com.agile.common.properties.GeneratorProperties;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.NumberUtil;
-import com.agile.common.util.StringUtil;
+import com.agile.common.util.string.StringUtil;
 import com.alibaba.druid.sql.visitor.functions.Char;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
