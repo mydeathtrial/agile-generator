@@ -150,8 +150,8 @@ public class AgileGenerator {
      */
     static void generator(TYPE type) throws IOException, TemplateException {
         for (Map<String, Object> table : getTableInfo()) {
-            TableModel.setDbInfo(dataSourceProperties);
-            TableModel tableModel = ObjectUtil.to(table,new TypeReference<TableModel>(){});
+            TableModel tableModel = ObjectUtil.to(table, new TypeReference<TableModel>() {
+            });
             switch (type) {
                 case ENTITY:
                     generateEntityFile(tableModel);

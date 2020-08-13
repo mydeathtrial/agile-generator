@@ -67,7 +67,7 @@ public class GeneratorProperties {
      */
     private Map<String, String> columnType = new HashMap<>();
 
-    private Set<AnnotationType> annotation = Sets.newHashSet(AnnotationType.JPA, AnnotationType.HibernateValidate);
+    private Set<AnnotationType> annotation = Sets.newHashSet();
 
     private List<String> keywords = Lists.newArrayList();
 

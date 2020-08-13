@@ -6,8 +6,8 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
- * @author agile gennerator
- */
+* @author agile gennerator
+*/
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ${className}Test extends MainControllerTest {
 <#list methodList as method>

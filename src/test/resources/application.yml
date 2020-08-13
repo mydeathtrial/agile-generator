@@ -9,8 +9,8 @@ agile:
     test-prefix: ''
     test-suffix: ServiceTest
     test-url: D:\workspace-idss\agile\test\main\java\com\agile\mvc\service
-    table-name: '%'
-    annotation: HibernateValidate,JPA
+    table-name: 'sys_task'
+    annotation: LOMBOK,REMARK
     keywords: order,dec,desc
 spring:
   datasource:

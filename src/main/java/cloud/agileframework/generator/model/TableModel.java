@@ -5,16 +5,23 @@ import cloud.agileframework.common.util.db.DataBaseUtil;
 import cloud.agileframework.common.util.object.ObjectUtil;
 import cloud.agileframework.common.util.string.StringUtil;
 import cloud.agileframework.generator.annotation.Remark;
-import cloud.agileframework.generator.properties.GeneratorProperties;
+import cloud.agileframework.generator.properties.AnnotationType;
 import cloud.agileframework.spring.util.spring.BeanUtil;
 import com.google.common.collect.Sets;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import lombok.ToString;
 
-import java.util.HashSet;
+import javax.persistence.Entity;
+import javax.persistence.Index;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +36,7 @@ import java.util.Set;
 @Setter
 @Getter
 @NoArgsConstructor
-public class TableModel {
+public class TableModel extends BaseModel {
     private String moduleName = BeanUtil.getApplicationContext().getId();
     private String tableCat;
     private String tableName;
@@ -38,12 +45,10 @@ public class TableModel {
     private String typeSchem;
     private String typeCat;
     private String tableType;
-    private String remarks;
+
     private String refGeneration;
     private String typeName;
 
-    private Set<ColumnModel> columns = Sets.newHashSet();
-    private Set<String> imports = new HashSet<>();
     private String serviceName;
     private String entityName;
     private String entityCenterLineName;
@@ -51,27 +56,22 @@ public class TableModel {
     private String servicePackageName;
     private String entityPackageName;
 
-    private GeneratorProperties properties = BeanUtil.getBean(GeneratorProperties.class);
-    private static DataSourceProperties dataSourceProperties;
+    private Set<ColumnModel> columns = Sets.newHashSet();
+
+    private boolean haveSetMethod;
+    private boolean haveGetMethod;
 
     public void setColumn(ColumnModel columns) {
         this.columns.add(columns);
-    }
-
-    public void setRemarks(String remarks) {
-        this.remarks = remarks.replaceAll("[\\s]+", " ");
-        if (!StringUtils.isEmpty(remarks)) {
-            setImport(Remark.class);
-        }
     }
 
     public void setTableName(String tableName) {
         this.tableName = tableName;
         this.javaName = StringUtil.toUpperName(tableName);
 
-        List<Map<String, Object>> columnInfos = DataBaseUtil.listColumns(dataSourceProperties.getUrl(),
-                dataSourceProperties.getUsername(),
-                dataSourceProperties.getPassword(),
+        List<Map<String, Object>> columnInfos = DataBaseUtil.listColumns(getDataSourceProperties().getUrl(),
+                getDataSourceProperties().getUsername(),
+                getDataSourceProperties().getPassword(),
                 tableName);
         for (Map<String, Object> column : columnInfos) {
             ColumnModel columnModel = ObjectUtil.getObjectFromMap(ColumnModel.class, column);
@@ -80,28 +80,73 @@ public class TableModel {
             setColumn(columnModel);
         }
 
-        this.serviceName = properties.getServicePrefix() + javaName + properties.getServiceSuffix();
-        this.entityName = properties.getEntityPrefix() + javaName + properties.getEntitySuffix();
+        this.serviceName = getProperties().getServicePrefix() + javaName + getProperties().getServiceSuffix();
+        this.entityName = getProperties().getEntityPrefix() + javaName + getProperties().getEntitySuffix();
         this.entityCenterLineName = StringUtil.toUnderline(javaName).replace(Constant.RegularAbout.UNDER_LINE, Constant.RegularAbout.MINUS).toLowerCase();
+
+        if (getProperties().getAnnotation().contains(AnnotationType.JPA) || getProperties().getAnnotation().contains(AnnotationType.VALIDATE)) {
+            addAnnotation(Setter.class, AnnotationType.LOMBOK, desc -> getAnnotationDesc().add(desc));
+            addAnnotation(Builder.class, AnnotationType.LOMBOK, desc -> getAnnotationDesc().add(desc));
+            addAnnotation(EqualsAndHashCode.class, AnnotationType.LOMBOK, desc -> getAnnotationDesc().add(desc));
+            addAnnotation(ToString.class, AnnotationType.LOMBOK, desc -> getAnnotationDesc().add(desc));
+        } else {
+            addAnnotation(Data.class, AnnotationType.LOMBOK, desc -> getAnnotationDesc().add(desc));
+        }
+
+        addAnnotation(AllArgsConstructor.class, AnnotationType.LOMBOK, desc -> getAnnotationDesc().add(desc));
+        addAnnotation(NoArgsConstructor.class, AnnotationType.LOMBOK, desc -> getAnnotationDesc().add(desc));
+
+        addAnnotation(Entity.class, AnnotationType.JPA, desc -> getAnnotationDesc().add(desc));
+        addAnnotation(new Table() {
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Table.class;
+            }
+
+            @Override
+            public String name() {
+                return toBlank(getTableName());
+            }
+
+            @Override
+            public String catalog() {
+                return toBlank(getTableCat());
+            }
+
+            @Override
+            public String schema() {
+                return toBlank(getTableSchem());
+            }
+
+            @Override
+            public UniqueConstraint[] uniqueConstraints() {
+                return new UniqueConstraint[0];
+            }
+
+            @Override
+            public Index[] indexes() {
+                return new Index[0];
+            }
+        }, AnnotationType.JPA, desc -> getAnnotationDesc().add(desc));
+
+        this.haveSetMethod = !getImports().contains(Setter.class) && !getImports().contains(Data.class);
+        this.haveGetMethod = !getImports().contains(Getter.class) && !getImports().contains(Data.class);
     }
 
-    public void setImport(Set<Class<?>> classes) {
-        if (classes == null) {
-            return;
-        }
-        for (Class<?> clazz : classes) {
-            setImport(clazz);
-        }
-    }
+    @Override
+    public void setRemarks(String remarks) {
+        super.setRemarks(remarks);
+        addAnnotation(new Remark() {
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Remark.class;
+            }
 
-    public void setImport(Class<?> clazz) {
-        if (clazz.getPackage().getName().startsWith("java.lang")) {
-            return;
-        }
-        this.imports.add(String.format("%s.%s", clazz.getPackage().getName(), clazz.getSimpleName()));
-    }
-
-    public static void setDbInfo(DataSourceProperties dataSourceProperties) {
-        TableModel.dataSourceProperties = dataSourceProperties;
+            @Override
+            public String value() {
+                return toBlank(getRemarks());
+            }
+        }, AnnotationType.REMARK, desc -> getAnnotationDesc().add(desc));
     }
 }
