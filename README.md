@@ -7,7 +7,7 @@
 
 * **自定义数据库类型与java类型映射**
 
-* **支持生成JPA、HibernateValidate、lombok注解**
+* **支持生成JPA、HibernateValidate、lombok等注解**
 
 -------
 ## 快速入门
