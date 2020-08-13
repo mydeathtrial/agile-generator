@@ -1,4 +1,4 @@
-package com.agile.common.generator;
+package cloud.agileframework.generator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

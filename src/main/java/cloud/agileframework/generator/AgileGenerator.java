@@ -1,13 +1,14 @@
-package com.agile.common.generator;
+package cloud.agileframework.generator;
 
-import com.agile.common.config.GeneratorConfig;
-import com.agile.common.generator.model.TableModel;
-import com.agile.common.properties.GeneratorProperties;
-import com.agile.common.util.DataBaseUtil;
-import com.agile.common.util.FactoryUtil;
-import com.agile.common.util.FreemarkerUtil;
-import com.agile.common.util.object.ObjectUtil;
-import com.agile.common.util.PropertiesUtil;
+import cloud.agileframework.common.util.clazz.TypeReference;
+import cloud.agileframework.common.util.db.DataBaseUtil;
+import cloud.agileframework.common.util.object.ObjectUtil;
+import cloud.agileframework.common.util.properties.PropertiesUtil;
+import cloud.agileframework.generator.config.GeneratorConfig;
+import cloud.agileframework.generator.model.TableModel;
+import cloud.agileframework.generator.properties.GeneratorProperties;
+import cloud.agileframework.generator.util.FreemarkerUtil;
+import cloud.agileframework.spring.util.spring.BeanUtil;
 import freemarker.template.TemplateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,7 @@ public class AgileGenerator {
      * @return 包名
      */
     static String getPackPath(String url) {
-        String javaPath = "src" + File.separator + "main" + File.separator + "java";
+        String javaPath = File.separator + "java";
         if (!url.contains(javaPath)) {
             return null;
         }
@@ -66,7 +67,10 @@ public class AgileGenerator {
      * @return 所有表信息
      */
     private static List<Map<String, Object>> getTableInfo() {
-        return DataBaseUtil.listTables(dataSourceProperties, generator.getTableName());
+        return DataBaseUtil.listTables(dataSourceProperties.getUrl(),
+                dataSourceProperties.getUsername(),
+                dataSourceProperties.getPassword(),
+                generator.getTableName());
     }
 
     /**
@@ -75,6 +79,7 @@ public class AgileGenerator {
     private static void initSpringContext() {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
+        BeanUtil.setApplicationContext(context);
         StandardEnvironment environment = new StandardEnvironment();
         PropertySource<?> localPropertySource = new PropertiesPropertySource(LOCAL_PROPERTIES_PROPERTY_SOURCE_NAME, PropertiesUtil.getProperties());
         environment.getPropertySources().addLast(localPropertySource);
@@ -83,8 +88,8 @@ public class AgileGenerator {
         context.register(GeneratorConfig.class);
         context.refresh();
 
-        dataSourceProperties = FactoryUtil.getBean(DataSourceProperties.class);
-        generator = FactoryUtil.getBean(GeneratorProperties.class);
+        dataSourceProperties = BeanUtil.getBean(DataSourceProperties.class);
+        generator = BeanUtil.getBean(GeneratorProperties.class);
     }
 
     /**
@@ -146,7 +151,7 @@ public class AgileGenerator {
     static void generator(TYPE type) throws IOException, TemplateException {
         for (Map<String, Object> table : getTableInfo()) {
             TableModel.setDbInfo(dataSourceProperties);
-            TableModel tableModel = ObjectUtil.getObjectFromMap(TableModel.class, table);
+            TableModel tableModel = ObjectUtil.to(table,new TypeReference<TableModel>(){});
             switch (type) {
                 case ENTITY:
                     generateEntityFile(tableModel);

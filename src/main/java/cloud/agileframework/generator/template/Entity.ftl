@@ -56,7 +56,7 @@ public class ${entityName} implements Serializable, Cloneable {
         try {
             return (${entityName}) super.clone();
         } catch (CloneNotSupportedException e) {
-            return null;
+            return this;
         }
     }
 }

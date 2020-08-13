@@ -1,9 +1,7 @@
-package com.agile.common.properties;
+package cloud.agileframework.generator.properties;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.commons.compress.utils.Lists;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.HashMap;
@@ -69,24 +67,12 @@ public class GeneratorProperties {
      */
     private Map<String, String> columnType = new HashMap<>();
 
-    private Set<AnnotationType> annotation = Sets.newHashSet(AnnotationType.JPA,AnnotationType.HibernateValidate);
+    private Set<AnnotationType> annotation = Sets.newHashSet(AnnotationType.JPA, AnnotationType.HibernateValidate);
 
     private List<String> keywords = Lists.newArrayList();
 
     public String getJavaType(String type) {
         return columnType.get(type);
-    }
-
-    /**
-     * 注解类型
-     */
-    public enum AnnotationType {
-        /**
-         * JPA注解
-         */
-        JPA,
-        HibernateValidate,
-        NO
     }
 
     public GeneratorProperties() {
@@ -129,6 +115,7 @@ public class GeneratorProperties {
         keywords.add("status");
         keywords.add("where");
         keywords.add("select");
+        keywords.add("mode");
     }
 
     public String getEntityUrl() {

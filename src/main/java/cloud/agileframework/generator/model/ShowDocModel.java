@@ -1,4 +1,4 @@
-package com.agile.common.generator.model;
+package cloud.agileframework.generator.model;
 
 import lombok.Builder;
 import lombok.Data;
