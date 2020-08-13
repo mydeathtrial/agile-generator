@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,47 +67,47 @@ public class GeneratorProperties {
     /**
      * 数据库字段类型与java映射规则
      */
-    private Map<String, String> columnType = new HashMap<>();
+    private Map<String, Class<?>> columnType = new HashMap<>();
 
     private Set<AnnotationType> annotation = Sets.newHashSet();
 
     private List<String> keywords = Lists.newArrayList();
 
-    public String getJavaType(String type) {
+    public Class<?> getJavaType(String type) {
         return columnType.get(type);
     }
 
     public GeneratorProperties() {
-        columnType.put("bigint", "java.lang.Long");
-        columnType.put("bit", "java.lang.Boolean");
-        columnType.put("char", "java.lang.String");
-        columnType.put("datetime", "java.util.Date");
-        columnType.put("time", "java.util.Date");
-        columnType.put("date", "java.util.Date");
-        columnType.put("mediumtext", "java.lang.String");
-        columnType.put("bolb", "byte[]");
-        columnType.put("clob", "java.lang.String");
-        columnType.put("decimal", "java.lang.Double");
-        columnType.put("double", "java.lang.Double");
-        columnType.put("float", "java.lang.Float");
-        columnType.put("image", "byte[]");
-        columnType.put("int", "java.lang.Integer");
-        columnType.put("longblob", "java.lang.Byte");
-        columnType.put("money", "java.lang.Double");
-        columnType.put("nchar", "java.lang.String");
-        columnType.put("number", "java.math.BigDecimal");
-        columnType.put("numeric", "java.lang.Double");
-        columnType.put("nvarchar", "java.lang.String");
-        columnType.put("real", "java.lang.Double");
-        columnType.put("smallint", "java.lang.Double");
-        columnType.put("text", "java.lang.String");
-        columnType.put("timestamp", "java.util.Date");
-        columnType.put("tinyint", "java.lang.Integer");
-        columnType.put("varchar", "java.lang.String");
-        columnType.put("varchar2", "java.lang.String");
-        columnType.put("tinytext", "java.lang.String");
-        columnType.put("longtext", "java.lang.String");
-        columnType.put("character", "java.lang.String");
+        columnType.put("bigint", Long.class);
+        columnType.put("bit", Boolean.class);
+        columnType.put("char", String.class);
+        columnType.put("datetime", Date.class);
+        columnType.put("time", Date.class);
+        columnType.put("date", Date.class);
+        columnType.put("mediumtext", String.class);
+        columnType.put("bolb", byte[].class);
+        columnType.put("clob", String.class);
+        columnType.put("decimal", Double.class);
+        columnType.put("double", Double.class);
+        columnType.put("float", Float.class);
+        columnType.put("image", byte[].class);
+        columnType.put("int", Integer.class);
+        columnType.put("longblob", Byte.class);
+        columnType.put("money", Double.class);
+        columnType.put("nchar", String.class);
+        columnType.put("number", BigDecimal.class);
+        columnType.put("numeric", Double.class);
+        columnType.put("nvarchar", String.class);
+        columnType.put("real", Double.class);
+        columnType.put("smallint", Double.class);
+        columnType.put("text", String.class);
+        columnType.put("timestamp", Date.class);
+        columnType.put("tinyint", Integer.class);
+        columnType.put("varchar", String.class);
+        columnType.put("varchar2", String.class);
+        columnType.put("tinytext", String.class);
+        columnType.put("longtext", String.class);
+        columnType.put("character", String.class);
 
         keywords.add("order");
         keywords.add("dec");
@@ -206,11 +208,11 @@ public class GeneratorProperties {
         isSensitive = sensitive;
     }
 
-    public Map<String, String> getColumnType() {
+    public Map<String, Class<?>> getColumnType() {
         return columnType;
     }
 
-    public void setColumnType(Map<String, String> columnType) {
+    public void setColumnType(Map<String, Class<?>> columnType) {
         this.columnType = columnType;
     }
 

@@ -460,23 +460,14 @@ public class ColumnModel extends BaseModel {
             }, AnnotationType.JPA, desc -> getAnnotationDesc().add(desc));
         }
 
-        this.javaTypeName = getProperties().getJavaType(typeName.split("[\\s]+")[0].toLowerCase());
+        this.javaType = getProperties().getJavaType(typeName.split("[\\s]+")[0].toLowerCase());
 
-        if (this.javaTypeName != null) {
-            try {
-                this.javaType = Class.forName(javaTypeName);
-                this.javaSimpleTypeName = javaType.getSimpleName();
-                setImport(javaType);
-            } catch (ClassNotFoundException ignored) {
-            }
-        }
         if (javaType == null) {
             this.javaType = String.class;
         }
-        if (javaSimpleTypeName == null) {
-            this.javaSimpleTypeName = String.class.getSimpleName();
-        }
-
+        this.javaTypeName = javaType.getName();
+        this.javaSimpleTypeName = javaType.getSimpleName();
+        setImport(javaType);
     }
 
     public void setIsPrimaryKey(String isPrimaryKey) {
