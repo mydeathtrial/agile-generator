@@ -9,7 +9,7 @@ agile:
     test-prefix: ''
     test-suffix: ServiceTest
     test-url: D:\workspace-idss\agile\test\main\java\com\agile\mvc\service
-    table-name: 'sys_task'
+    table-name: '%'
     annotation: LOMBOK,REMARK
     keywords: order,dec,desc
 spring:
