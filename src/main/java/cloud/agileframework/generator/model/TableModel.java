@@ -6,7 +6,7 @@ import cloud.agileframework.common.util.object.ObjectUtil;
 import cloud.agileframework.common.util.string.StringUtil;
 import cloud.agileframework.generator.annotation.Remark;
 import cloud.agileframework.generator.properties.AnnotationType;
-import cloud.agileframework.spring.util.spring.BeanUtil;
+import cloud.agileframework.spring.util.BeanUtil;
 import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

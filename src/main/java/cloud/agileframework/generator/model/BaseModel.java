@@ -4,7 +4,7 @@ import cloud.agileframework.common.util.string.StringUtil;
 import cloud.agileframework.generator.annotation.Remark;
 import cloud.agileframework.generator.properties.AnnotationType;
 import cloud.agileframework.generator.properties.GeneratorProperties;
-import cloud.agileframework.spring.util.spring.BeanUtil;
+import cloud.agileframework.spring.util.BeanUtil;
 import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.Setter;

@@ -8,7 +8,7 @@ import cloud.agileframework.generator.config.GeneratorConfig;
 import cloud.agileframework.generator.model.TableModel;
 import cloud.agileframework.generator.properties.GeneratorProperties;
 import cloud.agileframework.generator.util.FreemarkerUtil;
-import cloud.agileframework.spring.util.spring.BeanUtil;
+import cloud.agileframework.spring.util.BeanUtil;
 import freemarker.template.TemplateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
