@@ -149,7 +149,11 @@ public class AgileGenerator {
      * @throws TemplateException 异常
      */
     static void generator(TYPE type) throws IOException, TemplateException {
-        for (Map<String, Object> table : getTableInfo()) {
+        List<Map<String, Object>> tables = getTableInfo();
+        if (tables == null || tables.isEmpty()) {
+            throw new RuntimeException("未加载到任何数据库表信息");
+        }
+        for (Map<String, Object> table : tables) {
             TableModel tableModel = ObjectUtil.to(table, new TypeReference<TableModel>() {
             });
             switch (type) {
