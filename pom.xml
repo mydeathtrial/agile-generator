@@ -7,7 +7,7 @@
     <name>Agile代码生成器</name>
     <groupId>cloud.agileframework</groupId>
     <artifactId>agile-generator</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.5</version>
     <packaging>jar</packaging>
     <description>common util</description>
     <url>https://github.com/mydeathtrial/agile-generator</url>
@@ -77,7 +77,12 @@
         <dependency>
             <groupId>cloud.agileframework</groupId>
             <artifactId>spring-util</artifactId>
-            <version>2.0.0</version>
+            <version>2.0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>cloud.agileframework</groupId>
+            <artifactId>agile-sql</artifactId>
+            <version>2.0.5</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -96,7 +101,29 @@
             <optional>true</optional>
         </dependency>
     </dependencies>
-
+    <profiles>
+        <profile>
+            <id>with-gpg</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
     <build>
         <plugins>
             <plugin>
@@ -160,20 +187,6 @@
                             <charset>UTF-8</charset>
                             <additionalOptions>-Xdoclint:none</additionalOptions>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>
