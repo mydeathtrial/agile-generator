@@ -7,6 +7,7 @@ import ${import};
 
 /**
 <#if (remarks?? && remarks!="")> * 描述：${remarks}</#if>
+ *
  * @author agile generator
  */
 <#list annotationDesc as annotation>

@@ -194,14 +194,7 @@
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*.*</include>
-                </includes>
-                <excludes>
-                    <exclude>META-INF/</exclude>
-                </excludes>
                 <filtering>true</filtering>
-                <targetPath>com/agile/conf</targetPath>
             </resource>
             <resource>
                 <directory>src/main/java</directory>

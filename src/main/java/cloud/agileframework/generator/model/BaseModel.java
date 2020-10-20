@@ -75,7 +75,7 @@ public class BaseModel {
                 e.printStackTrace();
             }
             return null;
-        }).filter(Objects::nonNull).collect(Collectors.joining(","));
+        }).filter(Objects::nonNull).collect(Collectors.joining(", "));
         if (StringUtils.isEmpty(inner)) {
             return "@" + type.getSimpleName();
         } else {

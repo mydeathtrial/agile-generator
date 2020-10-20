@@ -1,6 +1,6 @@
 package com.agile;
 
-import cloud.agileframework.generator.AgileEntityGenerator;
+import cloud.agileframework.generator.AgileGenerator;
 
 /**
  * @author 佟盟
@@ -11,6 +11,6 @@ import cloud.agileframework.generator.AgileEntityGenerator;
  */
 public class Test {
     public static void main(String[] args) {
-        AgileEntityGenerator.main(args);
+        AgileGenerator.main(args);
     }
 }

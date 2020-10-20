@@ -5,6 +5,7 @@ import cloud.agileframework.common.util.string.StringUtil;
 import cloud.agileframework.generator.annotation.Remark;
 import cloud.agileframework.generator.properties.AnnotationType;
 import com.google.common.collect.Sets;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -527,6 +528,7 @@ public class ColumnModel extends BaseModel {
                 defValue = "System.currentTimeMillis()";
             }
         }
+        setImport(Builder.class);
     }
 
 
