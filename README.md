@@ -12,6 +12,7 @@
 -------
 ## 快速入门
 开始你的第一个项目是非常容易的。
+可以参照样例原代码地址：`https://gitee.com/agile-framework/agile-generator-demo`
 
 #### 步骤 1: 下载包
 您可以从[最新稳定版本]下载包(https://github.com/mydeathtrial/agile-generator/releases).
