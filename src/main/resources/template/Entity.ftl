@@ -17,6 +17,11 @@ public class ${entityName} implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 1L;
 <#list columns as property>
+    <#if (property.remarks?? && property.remarks!="")>
+    /**
+     * 描述：${property.remarks}
+     */
+    </#if>
     <#list property.fieldAnnotationDesc as annotation>
     ${annotation}
     </#list>

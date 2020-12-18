@@ -1,16 +1,11 @@
 package cloud.agileframework.generator.model;
 
-import cloud.agileframework.common.util.string.StringUtil;
-import cloud.agileframework.generator.annotation.Remark;
-import cloud.agileframework.generator.properties.AnnotationType;
-import cloud.agileframework.generator.properties.GeneratorProperties;
-import cloud.agileframework.spring.util.BeanUtil;
 import com.google.common.collect.Sets;
-import lombok.Getter;
-import lombok.Setter;
+import com.intellij.database.model.DasObject;
+import com.intellij.database.util.DasUtil;
+import lombok.Data;
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -23,31 +18,59 @@ import java.util.stream.Collectors;
 
 /**
  * @author 佟盟
- * 日期 2020/8/00013 13:59
+ * 日期 2020-12-16 15:38
  * 描述 TODO
  * @version 1.0
  * @since 1.0
  */
-@Setter
-@Getter
+@Data
 public class BaseModel {
-    private static GeneratorProperties properties = BeanUtil.getBean(GeneratorProperties.class);
-    private static DataSourceProperties dataSourceProperties = BeanUtil.getBean(DataSourceProperties.class);
-
+    /**
+     * 导入包
+     */
     private Set<Class<?>> imports = Sets.newHashSet();
+    /**
+     * 导入包描绘
+     */
     private Set<String> importDesc = Sets.newHashSet();
 
+    /**
+     * 注解描绘
+     */
     private Set<String> annotationDesc = Sets.newHashSet();
 
-    private String remarks;
+    /**
+     * 名字
+     */
+    private String name;
 
-    public static String toBlank(String str) {
-        return str == null ? "" : str;
+    /**
+     * 备注
+     */
+    private String remarks;
+    private String tableCat;
+    private String schema;
+    private GeneratorProperties config;
+
+    public BaseModel() {
     }
+
+    public BaseModel(DasObject dasObject, GeneratorProperties config) {
+        this.config = config;
+        this.remarks = dasObject.getComment();
+        this.name = dasObject.getName();
+        this.tableCat = DasUtil.getCatalog(dasObject);
+        this.schema = DasUtil.getSchema(dasObject);
+    }
+
 
     public static String toString(Class<? extends Annotation> annotation, Consumer<Class<?>> consumer) {
         consumer.accept(annotation);
         return "@" + annotation.getSimpleName();
+    }
+
+    public static String toBlank(String str) {
+        return str == null ? "" : str;
     }
 
     public static String toString(Annotation annotation, Consumer<Class<?>> consumer) {
@@ -102,13 +125,6 @@ public class BaseModel {
         }
     }
 
-    public void setRemarks(String remarks) {
-        this.remarks = deleteHiddenCharacter(remarks);
-        if (!StringUtil.isEmpty(this.remarks)) {
-            setImport(Remark.class);
-        }
-    }
-
     public String deleteHiddenCharacter(String str) {
         if (str == null) {
             return null;
@@ -117,22 +133,15 @@ public class BaseModel {
     }
 
     public void addAnnotation(Annotation annotation, AnnotationType annotationType, Consumer<String> consumer) {
-        if (getProperties().getAnnotation().contains(annotationType)) {
+        if (config.getAnnotation().contains(annotationType)) {
             consumer.accept(toString(annotation, this::setImport));
         }
     }
 
     public void addAnnotation(Class<? extends Annotation> annotation, AnnotationType annotationType, Consumer<String> consumer) {
-        if (getProperties().getAnnotation().contains(annotationType)) {
+        if (config.getAnnotation().contains(annotationType)) {
             consumer.accept(toString(annotation, this::setImport));
         }
     }
 
-    public static GeneratorProperties getProperties() {
-        return properties;
-    }
-
-    public static DataSourceProperties getDataSourceProperties() {
-        return dataSourceProperties;
-    }
 }

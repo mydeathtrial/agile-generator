@@ -1,4 +1,4 @@
-package cloud.agileframework.generator.annotation;
+package cloud.agileframework.context.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

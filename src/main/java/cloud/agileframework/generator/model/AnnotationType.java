@@ -1,4 +1,4 @@
-package cloud.agileframework.generator.properties;
+package cloud.agileframework.generator.model;
 
 /**
  * @author 佟盟
