@@ -119,11 +119,11 @@ public class AgileTableModel extends BaseModel{
         String javaSourceUrl = config.getJavaSourceUrl();
         javaSourceUrl = parseUrl(javaSourceUrl);
 
-        String packPath = url.substring(javaSourceUrl.length()).replaceAll(Matcher.quoteReplacement(File.separator), ".");
-        if (packPath.isEmpty()) {
-            return null;
+        url = url.substring(url.indexOf(javaSourceUrl)+javaSourceUrl.length());
+        if(url.length()>0){
+            return url.substring(0,url.length()-2).replaceAll(Matcher.quoteReplacement(File.separator), ".");
         }
-        return packPath;
+        return null;
     }
 
     /**
