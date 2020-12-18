@@ -4,6 +4,3 @@ target/
 .idea
 *.iml
 logs
-.sandbox
-build
-.gradle

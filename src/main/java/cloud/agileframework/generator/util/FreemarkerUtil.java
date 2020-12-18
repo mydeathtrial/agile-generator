@@ -1,5 +1,6 @@
-package cloud.agileframework.util;
+package cloud.agileframework.generator.util;
 
+import cloud.agileframework.generator.AgileGenerator;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
@@ -28,7 +29,7 @@ public class FreemarkerUtil {
 
     private static void initFreemarker() {
         try {
-            CFG.setClassForTemplateLoading(FreemarkerUtil.class, "/template");
+            CFG.setClassForTemplateLoading(AgileGenerator.class, "/cloud/agileframework/generator/template");
             CFG.setDefaultEncoding(ENCODER);
             CFG.setObjectWrapper(new DefaultObjectWrapper(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS));
         } catch (Exception e) {

@@ -1,13 +1,13 @@
 package cloud.agileframework.generator.model;
 
 import cloud.agileframework.common.constant.Constant;
+import cloud.agileframework.common.util.db.DataBaseUtil;
+import cloud.agileframework.common.util.object.ObjectUtil;
 import cloud.agileframework.common.util.string.StringUtil;
+import cloud.agileframework.generator.annotation.Remark;
+import cloud.agileframework.generator.properties.AnnotationType;
+import cloud.agileframework.spring.util.BeanUtil;
 import com.google.common.collect.Sets;
-import com.intellij.database.model.DasColumn;
-import com.intellij.database.model.DasObject;
-import com.intellij.database.model.DasTable;
-import com.intellij.database.util.DasUtil;
-import com.intellij.util.containers.JBIterable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,48 +16,75 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
-import java.io.File;
 import java.lang.annotation.Annotation;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 
 /**
  * @author 佟盟
- * 日期 2020-12-16 15:38
- * 描述 TODO
  * @version 1.0
+ * 日期： 2019/2/11 14:18
+ * 描述： 表模型信息
  * @since 1.0
  */
-@EqualsAndHashCode(callSuper = true)
-@Data
-public class AgileTableModel extends BaseModel{
+@Setter
+@Getter
+@NoArgsConstructor
+public class TableModel extends BaseModel {
+    private String moduleName = BeanUtil.getApplicationContext().getId();
+    private String tableCat;
+    private String tableName;
+    private String selfReferencingColName;
+    private String tableSchem;
+    private String typeSchem;
+    private String typeCat;
+    private String tableType;
 
+    private String refGeneration;
+    private String typeName;
+
+    private String serviceName;
     private String entityName;
     private String entityCenterLineName;
     private String javaName;
+    private String servicePackageName;
     private String entityPackageName;
-    private Set<AgileColumnModel> columns = Sets.newHashSet();
-    private String url;
+
+    private Set<ColumnModel> columns = Sets.newHashSet();
 
     private boolean haveSetMethod;
     private boolean haveGetMethod;
 
-    public AgileTableModel(DasTable dasObject, GeneratorProperties config) {
-        super(dasObject,config);
+    public void setColumn(ColumnModel columns) {
+        this.columns.add(columns);
+    }
 
-        parseColumn(dasObject, config);
-        this.javaName = StringUtil.toUpperName(getName());
-        this.entityName = config.getEntityPrefix() + javaName + config.getEntitySuffix();
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+        this.javaName = StringUtil.toUpperName(tableName);
+
+        List<Map<String, Object>> columnInfos = DataBaseUtil.listColumns(getDataSourceProperties().getUrl(),
+                getDataSourceProperties().getUsername(),
+                getDataSourceProperties().getPassword(),
+                tableName);
+        for (Map<String, Object> column : columnInfos) {
+            ColumnModel columnModel = ObjectUtil.getObjectFromMap(ColumnModel.class, column);
+            columnModel.build();
+            setImport(columnModel.getImports());
+            setColumn(columnModel);
+        }
+
+        this.serviceName = getProperties().getServicePrefix() + javaName + getProperties().getServiceSuffix();
+        this.entityName = getProperties().getEntityPrefix() + javaName + getProperties().getEntitySuffix();
         this.entityCenterLineName = StringUtil.toUnderline(javaName).replace(Constant.RegularAbout.UNDER_LINE, Constant.RegularAbout.MINUS).toLowerCase();
-        this.entityPackageName = getPackPath(config.getEntityUrl());
-        this.url = parseUrl(config.getEntityUrl());
 
-        if (config.getAnnotation().contains(AnnotationType.JPA) || config.getAnnotation().contains(AnnotationType.VALIDATE)) {
+        if (getProperties().getAnnotation().contains(AnnotationType.JPA) || getProperties().getAnnotation().contains(AnnotationType.VALIDATE)) {
             addAnnotation(Setter.class, AnnotationType.LOMBOK, desc -> getAnnotationDesc().add(desc));
             addAnnotation(Builder.class, AnnotationType.LOMBOK, desc -> getAnnotationDesc().add(desc));
             addAnnotation(EqualsAndHashCode.class, AnnotationType.LOMBOK, desc -> getAnnotationDesc().add(desc));
@@ -79,7 +106,7 @@ public class AgileTableModel extends BaseModel{
 
             @Override
             public String name() {
-                return toBlank(getName());
+                return toBlank(getTableName());
             }
 
             @Override
@@ -89,7 +116,7 @@ public class AgileTableModel extends BaseModel{
 
             @Override
             public String schema() {
-                return toBlank(getSchema());
+                return toBlank(getTableSchem());
             }
 
             @Override
@@ -107,49 +134,19 @@ public class AgileTableModel extends BaseModel{
         this.haveGetMethod = !getImports().contains(Getter.class) && !getImports().contains(Data.class);
     }
 
-    /**
-     * 推测生成java文件的包名
-     *
-     * @param url 生成目标文件存储路径
-     * @return 包名
-     */
-    private String getPackPath(String url) {
-        url = parseUrl(url);
-        GeneratorProperties config = getConfig();
-        String javaSourceUrl = config.getJavaSourceUrl();
-        javaSourceUrl = parseUrl(javaSourceUrl);
+    @Override
+    public void setRemarks(String remarks) {
+        super.setRemarks(remarks);
+        addAnnotation(new Remark() {
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Remark.class;
+            }
 
-        url = url.substring(url.indexOf(javaSourceUrl)+javaSourceUrl.length());
-        if(url.length()>0){
-            return url.substring(0,url.length()-2).replaceAll(Matcher.quoteReplacement(File.separator), ".");
-        }
-        return null;
-    }
-
-    /**
-     * 统一路径中的斜杠
-     *
-     * @param str 路径
-     * @return 处理后的合法路径
-     */
-    private static String parseUrl(String str) {
-        String url = str.replaceAll("[\\\\/]+", Matcher.quoteReplacement(File.separator));
-        if (!url.endsWith(File.separator)) {
-            url += File.separator;
-        }
-        return url;
-    }
-
-    private void parseColumn(DasObject dasObject, GeneratorProperties config) {
-        JBIterable<? extends DasColumn> columns = DasUtil.getColumns(dasObject);
-        for(DasColumn dasColumn : columns){
-            AgileColumnModel columnModel = new AgileColumnModel(dasColumn, config);
-            setImport(columnModel.getImports());
-            setColumn(columnModel);
-        }
-    }
-
-    public void setColumn(AgileColumnModel column) {
-        this.columns.add(column);
+            @Override
+            public String value() {
+                return toBlank(getRemarks());
+            }
+        }, AnnotationType.REMARK, desc -> getAnnotationDesc().add(desc));
     }
 }

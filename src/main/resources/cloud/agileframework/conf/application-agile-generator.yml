@@ -1,0 +1,8 @@
+agile:
+  generator:
+    entity-prefix: ''
+    entity-suffix: Do
+    table-name: '%'
+    annotation: LOMBOK,REMARK,JPA,VALIDATE
+    entity-url: '/'
+    service-url: '/'

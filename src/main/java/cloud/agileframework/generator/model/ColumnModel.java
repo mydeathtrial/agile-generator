@@ -1,17 +1,14 @@
 package cloud.agileframework.generator.model;
 
-
 import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.common.util.string.StringUtil;
-import cloud.agileframework.context.annotation.Remark;
+import cloud.agileframework.generator.annotation.Remark;
+import cloud.agileframework.generator.properties.AnnotationType;
 import com.google.common.collect.Sets;
-import com.intellij.database.model.DasColumn;
-import com.intellij.database.model.DataType;
-import com.intellij.database.util.DasUtil;
 import lombok.Builder;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.commons.lang3.ArrayUtils;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.hibernate.annotations.CreationTimestamp;
@@ -34,7 +31,6 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.valueextraction.Unwrapping;
 import java.lang.annotation.Annotation;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -43,21 +39,39 @@ import java.util.Set;
 
 /**
  * @author 佟盟
- * 日期 2020-12-16 15:59
- * 描述 TODO
  * @version 1.0
+ * 日期： 2019/2/11 14:18
+ * 描述： 字段信息
  * @since 1.0
  */
-@EqualsAndHashCode(callSuper = true)
-@Data
-public class AgileColumnModel extends BaseModel{
+@Getter
+@EqualsAndHashCode
+@NoArgsConstructor
+public class ColumnModel extends BaseModel {
+    private String tableCat;
+    private String bufferLength;
+    private String tableName;
     private String columnDef;
+    private String scopeCatalog;
+    private String tableSchem;
     private String columnName;
-    private boolean isPrimaryKey;
-    private boolean notNull;
-    private String typeName;
+    private String numPrecRadix;
+    private String isAutoincrement;
+    private String sqlDataType;
+    private String scopeSchema;
+    private String isPrimaryKey;
+    private String dataType;
     private int columnSize;
-
+    private String scopeTable;
+    private String isNullable;
+    private String nullable;
+    private int decimalDigits;
+    private String sqlDatetimeSub;
+    private String isGeneratedcolumn;
+    private String charOctetLength;
+    private String ordinalPosition;
+    private String sourceDataType;
+    private String typeName;
 
     private String javaName;
     private String getMethod;
@@ -69,22 +83,7 @@ public class AgileColumnModel extends BaseModel{
 
     private final Set<String> fieldAnnotationDesc = Sets.newHashSet();
 
-    public AgileColumnModel(DasColumn dasObject, GeneratorProperties config) {
-        super(dasObject,config);
-
-        final DataType dataType = dasObject.getDataType();
-        setTypeName(dataType.typeName);
-
-        setColumnDef(dasObject.getDefault());
-        setColumnName(getName());
-        setIsAutoincrement(DasUtil.isAuto(dasObject));
-        notNull = dasObject.isNotNull();
-        columnSize = dataType.size == DataType.NO_SIZE ? 0 : dataType.size;
-        isPrimaryKey = DasUtil.isPrimary(dasObject);
-        init();
-    }
-
-    private void init() {
+    public void build() {
         addAnnotation(new Column() {
             @Override
             public Class<? extends Annotation> annotationType() {
@@ -103,7 +102,7 @@ public class AgileColumnModel extends BaseModel{
 
             @Override
             public boolean nullable() {
-                return !notNull;
+                return !"0".equals(getNullable());
             }
 
             @Override
@@ -149,7 +148,7 @@ public class AgileColumnModel extends BaseModel{
             }
         }, AnnotationType.JPA, desc -> getAnnotationDesc().add(desc));
 
-        if (notNull) {
+        if ("0".equals(nullable)) {
             if (javaType == String.class) {
                 addAnnotation(new NotBlank() {
                     @Override
@@ -159,12 +158,12 @@ public class AgileColumnModel extends BaseModel{
 
                     @Override
                     public String message() {
-                        return isPrimaryKey ? "唯一标识不能为空" : toBlank(getRemarks()) + "不能为空";
+                        return Boolean.parseBoolean(isPrimaryKey) ? "唯一标识不能为空" : toBlank(getRemarks()) + "不能为空";
                     }
 
                     @Override
                     public Class<?>[] groups() {
-                        return new Class<?>[0];
+                        return new Class[0];
                     }
 
                     @Override
@@ -181,7 +180,7 @@ public class AgileColumnModel extends BaseModel{
 
                     @Override
                     public String message() {
-                        return isPrimaryKey ? "唯一标识不能为空" : toBlank(getRemarks()) + "不能为空";
+                        return Boolean.parseBoolean(isPrimaryKey) ? "唯一标识不能为空" : toBlank(getRemarks()) + "不能为空";
                     }
 
                     @Override
@@ -352,7 +351,7 @@ public class AgileColumnModel extends BaseModel{
             }
         }
 
-        if (isPrimaryKey) {
+        if (Boolean.parseBoolean(isPrimaryKey)) {
             addAnnotation(Id.class, AnnotationType.JPA, desc -> getAnnotationDesc().add(desc));
         } else {
             if ("byte[]".equals(javaTypeName) ||
@@ -397,15 +396,16 @@ public class AgileColumnModel extends BaseModel{
         setMethod(javaName);
     }
 
+
     public void setColumnName(String columnName) {
         columnName = deleteHiddenCharacter(columnName);
-        if (ArrayUtils.contains(getConfig().getKeywords(), columnName)) {
+        if (getProperties().getKeywords().contains(columnName)) {
             this.columnName = String.format("`%s`", columnName);
         } else {
             this.columnName = columnName;
         }
 
-        if (getConfig().isSensitive()) {
+        if (getProperties().isSensitive()) {
             this.javaName = StringUtil.toLowerName(columnName);
         } else {
             this.javaName = StringUtil.toLowerName(columnName.toLowerCase());
@@ -461,7 +461,7 @@ public class AgileColumnModel extends BaseModel{
             }, AnnotationType.JPA, desc -> getAnnotationDesc().add(desc));
         }
 
-        this.javaType = getConfig().getJavaType(typeName.split("[\\s]+")[0].toLowerCase());
+        this.javaType = getProperties().getJavaType(typeName.split("[\\s]+")[0].toLowerCase());
 
         if (javaType == null) {
             this.javaType = String.class;
@@ -469,6 +469,10 @@ public class AgileColumnModel extends BaseModel{
         this.javaTypeName = javaType.getName();
         this.javaSimpleTypeName = javaType.getSimpleName();
         setImport(javaType);
+    }
+
+    public void setIsPrimaryKey(String isPrimaryKey) {
+        this.isPrimaryKey = isPrimaryKey;
     }
 
     private void setMethod(String name) {
@@ -480,8 +484,9 @@ public class AgileColumnModel extends BaseModel{
         this.setMethod = "set" + StringUtil.toUpperName(name);
     }
 
-    public void setIsAutoincrement(boolean isAutoincrement) {
-        if (isAutoincrement) {
+    public void setIsAutoincrement(String isAutoincrement) {
+        this.isAutoincrement = isAutoincrement;
+        if ("YES".equals(isAutoincrement)) {
             addAnnotation(new GeneratedValue() {
 
                 @Override
@@ -509,7 +514,7 @@ public class AgileColumnModel extends BaseModel{
         }
 
         if (Double.class == javaType) {
-            defValue = NumberUtils.isNumber(columnDef) ? Double.valueOf(columnDef).toString() : null;
+            defValue = NumberUtils.isCreatable(columnDef) ? Double.valueOf(columnDef).toString() : null;
         } else if (String.class == javaType || char.class == javaType) {
             defValue = String.format("\"%s\"", columnDef.replace(Constant.RegularAbout.UP_COMMA, ""));
         } else if ("CURRENT_TIMESTAMP".equals(columnDef)) {
@@ -525,5 +530,6 @@ public class AgileColumnModel extends BaseModel{
         }
         addAnnotation(Builder.class, AnnotationType.LOMBOK, desc -> getAnnotationDesc().add(desc));
     }
+
 
 }
