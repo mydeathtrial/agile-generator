@@ -25,6 +25,10 @@ public class GeneratorProperties {
      */
     private String entityUrl;
     /**
+     * 源码包路径
+     */
+    private String javaSourceUtl;
+    /**
      * Service文件生成到的目录地址
      */
     private String serviceUrl;
@@ -72,6 +76,14 @@ public class GeneratorProperties {
     private Set<AnnotationType> annotation = Sets.newHashSet();
 
     private List<String> keywords = Lists.newArrayList();
+
+    public String getJavaSourceUtl() {
+        return javaSourceUtl;
+    }
+
+    public void setJavaSourceUtl(String javaSourceUtl) {
+        this.javaSourceUtl = javaSourceUtl;
+    }
 
     public Class<?> getJavaType(String type) {
         return columnType.get(type);

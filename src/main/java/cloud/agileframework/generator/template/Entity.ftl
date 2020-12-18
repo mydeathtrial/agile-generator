@@ -1,6 +1,6 @@
-package ${entityPackageName};
+<#if (entityPackageName?? && entityPackageName!="")>package ${entityPackageName};
 
-import java.io.Serializable;
+</#if>import java.io.Serializable;
 <#list importDesc as import>
 import ${import};
 </#list>

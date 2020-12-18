@@ -4,6 +4,7 @@ import cloud.agileframework.common.util.clazz.TypeReference;
 import cloud.agileframework.common.util.db.DataBaseUtil;
 import cloud.agileframework.common.util.object.ObjectUtil;
 import cloud.agileframework.common.util.properties.PropertiesUtil;
+import cloud.agileframework.common.util.string.StringUtil;
 import cloud.agileframework.generator.config.GeneratorConfig;
 import cloud.agileframework.generator.model.TableModel;
 import cloud.agileframework.generator.properties.GeneratorProperties;
@@ -46,19 +47,19 @@ public class AgileGenerator {
      * @return 包名
      */
     static String getPackPath(String url) {
-        String javaPath = File.separator + "java";
-        if (!url.contains(javaPath)) {
-            return null;
+        url = parseUrl(url);
+        String javaSourceUrl = parseUrl(generator.getJavaSourceUtl());
+        if(StringUtil.isEmpty(javaSourceUrl)){
+            String javaPath = File.separator + "java" + File.separator;
+            if (!url.contains(javaPath)) {
+                return null;
+            }
         }
-        int endIndex = 0;
-        if (url.endsWith(File.separator)) {
-            endIndex = 1;
+        url = url.substring(url.indexOf(javaSourceUrl)+javaSourceUrl.length());
+        if(url.length()>0){
+            return url.substring(0,url.length()-1).replaceAll(Matcher.quoteReplacement(File.separator), ".");
         }
-        String packPath = url.substring(url.indexOf(javaPath) + javaPath.length() + 1, url.length() - endIndex).replaceAll(Matcher.quoteReplacement(File.separator), ".");
-        if (packPath.isEmpty()) {
-            return null;
-        }
-        return packPath;
+        return null;
     }
 
     /**

@@ -528,7 +528,7 @@ public class ColumnModel extends BaseModel {
                 defValue = "System.currentTimeMillis()";
             }
         }
-        setImport(Builder.class);
+        addAnnotation(Builder.class, AnnotationType.LOMBOK, desc -> getAnnotationDesc().add(desc));
     }
 
 
