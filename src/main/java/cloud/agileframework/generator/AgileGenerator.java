@@ -49,15 +49,15 @@ public class AgileGenerator {
     static String getPackPath(String url) {
         url = parseUrl(url);
         String javaSourceUrl = parseUrl(generator.getJavaSourceUtl());
-        if(StringUtil.isEmpty(javaSourceUrl)){
+        if (StringUtil.isEmpty(javaSourceUrl)) {
             String javaPath = File.separator + "java" + File.separator;
             if (!url.contains(javaPath)) {
                 return null;
             }
         }
-        url = url.substring(url.indexOf(javaSourceUrl)+javaSourceUrl.length());
-        if(url.length()>0){
-            return url.substring(0,url.length()-1).replaceAll(Matcher.quoteReplacement(File.separator), ".");
+        url = url.substring(url.indexOf(javaSourceUrl) + javaSourceUrl.length());
+        if (url.length() > 0) {
+            return url.substring(0, url.length() - 1).replaceAll(Matcher.quoteReplacement(File.separator), ".");
         }
         return null;
     }

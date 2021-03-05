@@ -1,6 +1,8 @@
 # agile-generator ： 代码生成器
+
 [![freemark](https://img.shields.io/badge/freemark-LATEST-green)](https://img.shields.io/badge/freemark-LATEST-green)
 [![maven](https://img.shields.io/badge/build-maven-green)](https://img.shields.io/badge/build-maven-green)
+
 ## 它有什么作用
 
 * **持久层POJO生成**
@@ -10,16 +12,19 @@
 * **支持生成JPA、HibernateValidate、lombok等注解**
 
 -------
+
 ## 快速入门
-开始你的第一个项目是非常容易的。
-可以参照样例原代码地址：`https://gitee.com/agile-framework/agile-generator-demo`
+
+开始你的第一个项目是非常容易的。 可以参照样例原代码地址：`https://gitee.com/agile-framework/agile-generator-demo`
 
 #### 步骤 1: 下载包
-您可以从[最新稳定版本]下载包(https://github.com/mydeathtrial/agile-generator/releases).
-该包已上传至maven中央仓库，可在pom中直接声明引用
 
-以版本agile-generator-2.0.9.jar为例。
+您可以从[最新稳定版本]下载包(https://github.com/mydeathtrial/agile-generator/releases). 该包已上传至maven中央仓库，可在pom中直接声明引用
+
+以版本agile-generator-2.0.10.jar为例。
+
 #### 步骤 2: 添加maven依赖
+
 ```xml
 <!--声明中央仓库-->
 <repositories>
@@ -28,14 +33,16 @@
         <url>https://repo1.maven.org/maven2/</url>
     </repository>
 </repositories>
-<!--声明依赖-->
+        <!--声明依赖-->
 <dependency>
-    <groupId>cloud.agileframework</groupId>
-    <artifactId>agile-generator</artifactId>
-    <version>2.0.9</version>
+<groupId>cloud.agileframework</groupId>
+<artifactId>agile-generator</artifactId>
+<version>2.0.10</version>
 </dependency>
 ```
+
 #### 步骤 3: 开箱即用
+
 ```yaml
 //配置生成规则
 agile:
@@ -64,10 +71,11 @@ spring:
     username: root
     password: 123456
 ```
-运行生成器
-代码生成器是通过main方法直接运行触发，可以直接运行`cloud.agileframework.generator.AgileEntityGenerator`
+
+运行生成器 代码生成器是通过main方法直接运行触发，可以直接运行`cloud.agileframework.generator.AgileEntityGenerator`
 
 运行后日志
+
 ```
 20:19:59.250 [main] INFO cloud.agileframework.generator.AgileEntityGenerator - 【1】开始生成源代码
 ...
@@ -83,9 +91,11 @@ spring:
 Process finished with exit code 0
 
 ```
-#####注意
-代码生成器是依赖配置文件读取数据库信息，所以运行时需要注意控制台开始打印的加载配置文件记录中是否包含你的
-配置文件，配置文件会加载编译路径下的所有properties、yml配置文件，如下：
+
+##### 注意
+
+代码生成器是依赖配置文件读取数据库信息，所以运行时需要注意控制台开始打印的加载配置文件记录中是否包含你的 配置文件，配置文件会加载编译路径下的所有properties、yml配置文件，如下：
+
 ```
 15:26:55.779 [main] INFO cloud.agileframework.generator.AgileGenerator - 【1】开始生成源代码
 /cloud/agileframework/generator/template/Entity.ftl
