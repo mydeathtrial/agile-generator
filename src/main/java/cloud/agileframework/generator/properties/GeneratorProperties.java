@@ -20,6 +20,7 @@ import java.util.Set;
  */
 @ConfigurationProperties(prefix = "agile.generator")
 public class GeneratorProperties {
+    private TYPE[] types = new TYPE[]{TYPE.ENTITY};
     /**
      * 实体文件生成到的目录地址
      */
@@ -27,7 +28,7 @@ public class GeneratorProperties {
     /**
      * 源码包路径
      */
-    private String javaSourceUtl;
+    private String javaSourceUrl;
     /**
      * Service文件生成到的目录地址
      */
@@ -77,12 +78,12 @@ public class GeneratorProperties {
 
     private List<String> keywords = Lists.newArrayList();
 
-    public String getJavaSourceUtl() {
-        return javaSourceUtl;
+    public String getJavaSourceUrl() {
+        return javaSourceUrl;
     }
 
-    public void setJavaSourceUtl(String javaSourceUtl) {
-        this.javaSourceUtl = javaSourceUtl;
+    public void setJavaSourceUrl(String javaSourceUrl) {
+        this.javaSourceUrl = javaSourceUrl;
     }
 
     public Class<?> getJavaType(String type) {
@@ -130,6 +131,14 @@ public class GeneratorProperties {
         keywords.add("where");
         keywords.add("select");
         keywords.add("mode");
+    }
+
+    public TYPE[] getTypes() {
+        return types;
+    }
+
+    public void setTypes(TYPE[] types) {
+        this.types = types;
     }
 
     public String getEntityUrl() {

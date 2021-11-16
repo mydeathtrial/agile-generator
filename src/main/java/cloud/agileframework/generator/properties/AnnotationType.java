@@ -13,6 +13,10 @@ public enum AnnotationType {
      */
     JPA,
     /**
+     * hibernate注解
+     */
+    HIBERNATE,
+    /**
      * hibernate-validate验证注解
      */
     VALIDATE,

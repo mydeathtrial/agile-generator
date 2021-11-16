@@ -15,26 +15,14 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.Length;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import javax.validation.Payload;
-import javax.validation.constraints.DecimalMax;
-import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.lang.annotation.Annotation;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -45,9 +33,10 @@ import java.util.Set;
  * @since 1.0
  */
 @Getter
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class ColumnModel extends BaseModel {
+    private final Set<String> fieldAnnotationDesc = Sets.newHashSet();
     private String tableCat;
     private String bufferLength;
     private String tableName;
@@ -72,7 +61,6 @@ public class ColumnModel extends BaseModel {
     private String ordinalPosition;
     private String sourceDataType;
     private String typeName;
-
     private String javaName;
     private String getMethod;
     private String setMethod;
@@ -80,8 +68,6 @@ public class ColumnModel extends BaseModel {
     private String javaTypeName;
     private String javaSimpleTypeName;
     private String defValue;
-
-    private final Set<String> fieldAnnotationDesc = Sets.newHashSet();
 
     public void build() {
         addAnnotation(new Column() {
@@ -107,13 +93,16 @@ public class ColumnModel extends BaseModel {
 
             @Override
             public boolean insertable() {
-                return true;
+                return !(ColumnModel.this instanceof DeleteColumn)
+                        && !(ColumnModel.this instanceof CreateTimeColumn)
+                        && !(ColumnModel.this instanceof UpdateTimeColumn);
             }
 
             @Override
             public boolean updatable() {
-                boolean update = "creatDate".equals(javaName) || "creatTime".equals(javaName) || "createTime".equals(javaName) || "createDate".equals(javaName);
-                return !update;
+                return !(ColumnModel.this instanceof DeleteColumn)
+                        && !(ColumnModel.this instanceof CreateTimeColumn)
+                        && !(ColumnModel.this instanceof UpdateTimeColumn);
             }
 
             @Override
@@ -131,7 +120,7 @@ public class ColumnModel extends BaseModel {
 
             @Override
             public int length() {
-                if (getColumnSize() > 0) {
+                if (getColumnSize() > 0 && !getJavaType().isAssignableFrom(Date.class)) {
                     return getColumnSize();
                 }
                 return 255;
@@ -413,36 +402,36 @@ public class ColumnModel extends BaseModel {
 
         javaName = javaName.replace(Constant.RegularAbout.UNDER_LINE, Constant.RegularAbout.BLANK);
 
-        if ("updateTime".equals(javaName) || "updateDate".equals(javaName)) {
+//        if ("updateTime".equals(javaName) || "updateDate".equals(javaName)) {
+//
+//            addAnnotation(new Temporal() {
+//                @Override
+//                public Class<? extends Annotation> annotationType() {
+//                    return Temporal.class;
+//                }
+//
+//                @Override
+//                public TemporalType value() {
+//                    return TemporalType.TIMESTAMP;
+//                }
+//            }, AnnotationType.JPA, desc -> getAnnotationDesc().add(desc));
+//            addAnnotation(UpdateTimestamp.class, AnnotationType.JPA, desc -> getAnnotationDesc().add(desc));
+//        }
 
-            addAnnotation(new Temporal() {
-                @Override
-                public Class<? extends Annotation> annotationType() {
-                    return Temporal.class;
-                }
-
-                @Override
-                public TemporalType value() {
-                    return TemporalType.TIMESTAMP;
-                }
-            }, AnnotationType.JPA, desc -> getAnnotationDesc().add(desc));
-            addAnnotation(UpdateTimestamp.class, AnnotationType.JPA, desc -> getAnnotationDesc().add(desc));
-        }
-
-        if ("creatDate".equals(javaName) || "creatTime".equals(javaName) || "createTime".equals(javaName) || "createDate".equals(javaName)) {
-            addAnnotation(new Temporal() {
-                @Override
-                public Class<? extends Annotation> annotationType() {
-                    return Temporal.class;
-                }
-
-                @Override
-                public TemporalType value() {
-                    return TemporalType.TIMESTAMP;
-                }
-            }, AnnotationType.JPA, desc -> getAnnotationDesc().add(desc));
-            addAnnotation(CreationTimestamp.class, AnnotationType.JPA, desc -> getAnnotationDesc().add(desc));
-        }
+//        if ("creatDate".equals(javaName) || "creatTime".equals(javaName) || "createTime".equals(javaName) || "createDate".equals(javaName)) {
+//            addAnnotation(new Temporal() {
+//                @Override
+//                public Class<? extends Annotation> annotationType() {
+//                    return Temporal.class;
+//                }
+//
+//                @Override
+//                public TemporalType value() {
+//                    return TemporalType.TIMESTAMP;
+//                }
+//            }, AnnotationType.JPA, desc -> getAnnotationDesc().add(desc));
+//            addAnnotation(CreationTimestamp.class, AnnotationType.JPA, desc -> getAnnotationDesc().add(desc));
+//        }
     }
 
     public void setTypeName(String typeName) {
@@ -475,12 +464,8 @@ public class ColumnModel extends BaseModel {
         this.isPrimaryKey = isPrimaryKey;
     }
 
-    private void setMethod(String name) {
-        if (boolean.class == javaType) {
-            this.getMethod = "is" + StringUtil.toUpperName(name);
-        } else {
-            this.getMethod = "get" + StringUtil.toUpperName(name);
-        }
+    public void setMethod(String name) {
+        this.getMethod = "get" + StringUtil.toUpperName(name);
         this.setMethod = "set" + StringUtil.toUpperName(name);
     }
 
@@ -531,5 +516,24 @@ public class ColumnModel extends BaseModel {
         addAnnotation(Builder.class, AnnotationType.LOMBOK, desc -> getAnnotationDesc().add(desc));
     }
 
+    public void setJavaType(Class<?> javaType) {
+        this.javaType = javaType;
+        setImport(javaType);
+    }
 
+    public void setJavaTypeName(String javaTypeName) {
+        this.javaTypeName = javaTypeName;
+    }
+
+    public void setJavaSimpleTypeName(String javaSimpleTypeName) {
+        this.javaSimpleTypeName = javaSimpleTypeName;
+    }
+
+    /**
+     * 根据字段信息判断是不是该类型数据
+     * @return true 是
+     */
+    public boolean isGeneric(){
+        return true;
+    }
 }

@@ -1,16 +1,18 @@
 agile:
   generator:
+    types: ENTITY,SWAGGER
     entity-prefix: ''
     entity-suffix: Entity
-    entity-url: D:\workspace-agile\agile-generator\src\test\java\com\agile\entity
+    entity-url: E:\workspace-agile\agile-parent\agile-generator\src\test\java\com\agile\entity
     table-name: '%'
-    annotation: LOMBOK,REMARK
+    annotation: LOMBOK,REMARK,JPA,HIBERNATE
     keywords: order,dec,desc
     column-type:
       char: java.lang.String
       varchar: java.lang.String
+    java_source_url: E:\workspace-agile\agile-parent\agile-generator\src\test\java
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/dsmc?serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL&autoReconnect=true&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/situation?serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL&autoReconnect=true&allowPublicKeyRetrieval=true
     username: root
     password: 123456
