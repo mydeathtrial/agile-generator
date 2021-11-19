@@ -1,5 +1,6 @@
 package cloud.agileframework.generator.config;
 
+import cloud.agileframework.generator.handler.AgileAbstractBusinessGenerator;
 import cloud.agileframework.generator.handler.EntityGenerator;
 import cloud.agileframework.generator.handler.ServiceGenerator;
 import cloud.agileframework.generator.handler.SwaggerGenerator;
@@ -31,5 +32,9 @@ public class GeneratorConfig {
     @Bean
     public SwaggerGenerator swaggerGenerator(){
         return new SwaggerGenerator();
+    }
+    @Bean
+    public AgileAbstractBusinessGenerator agileAbstractBusinessGenerator(){
+        return new AgileAbstractBusinessGenerator();
     }
 }

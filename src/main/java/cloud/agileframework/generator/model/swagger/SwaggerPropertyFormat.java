@@ -8,5 +8,11 @@ public enum SwaggerPropertyFormat {
     @JSONField(name = "int32")
     int32,
     @JSONField(name = "date-time")
-    date_time;
+    date_time,
+    @JSONField(name = "double")
+    doublec,
+    @JSONField(name = "float")
+    floatc,
+
+    binary
 }

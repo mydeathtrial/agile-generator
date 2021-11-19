@@ -74,7 +74,7 @@ public class TableModel extends BaseModel {
                 tableName);
         for (Map<String, Object> column : columnInfos) {
             ColumnModel columnModel;
-            
+
             if (PrimaryKeyColumn.is(column)) {
                 columnModel = ObjectUtil.getObjectFromMap(PrimaryKeyColumn.class, column);
             } else if (DeleteColumn.is(column)) {
@@ -83,6 +83,12 @@ public class TableModel extends BaseModel {
                 columnModel = ObjectUtil.getObjectFromMap(CreateTimeColumn.class, column);
             } else if (UpdateTimeColumn.is(column)) {
                 columnModel = ObjectUtil.getObjectFromMap(UpdateTimeColumn.class, column);
+            } else if (CreateUserColumn.is(column)) {
+                columnModel = ObjectUtil.getObjectFromMap(CreateUserColumn.class, column);
+            } else if (UpdateUserColumn.is(column)) {
+                columnModel = ObjectUtil.getObjectFromMap(UpdateUserColumn.class, column);
+            } else if (ParentKeyColumn.is(column)) {
+                columnModel = ObjectUtil.getObjectFromMap(ParentKeyColumn.class, column);
             } else {
                 columnModel = ObjectUtil.getObjectFromMap(ColumnModel.class, column);
             }
@@ -161,13 +167,13 @@ public class TableModel extends BaseModel {
                 getDataSourceProperties().getUsername(),
                 getDataSourceProperties().getPassword(),
                 tableName);
-        
+
         Set<String> cache = Sets.newHashSet();
-        
+
         fKeys.forEach(fk -> {
             FKeyColumn columnModel = ObjectUtil.getObjectFromMap(FKeyColumn.class, fk);
-            if(cache.contains(columnModel.getFktableName())){
-                columnModel.setFktableName(columnModel.getFktableName()+1);
+            if (cache.contains(columnModel.getFktableName())) {
+                columnModel.setFktableName(columnModel.getFktableName() + 1);
             }
             cache.add(columnModel.getFktableName());
             columnModel.build();

@@ -3,12 +3,13 @@ package cloud.agileframework.generator.handler;
 import cloud.agileframework.common.util.http.RequestMethod;
 import cloud.agileframework.generator.model.TableModel;
 import cloud.agileframework.generator.model.swagger.Swagger;
+import cloud.agileframework.generator.model.swagger.SwaggerApi;
+import cloud.agileframework.generator.model.swagger.SwaggerPropertyType;
 import cloud.agileframework.generator.properties.TYPE;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
-import freemarker.template.TemplateException;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -43,7 +44,17 @@ public class SwaggerGenerator extends ByAllTableGenerator {
         s.put(RequestMethod.class, new ObjectSerializer() {
             @Override
             public void write(JSONSerializer jsonSerializer, Object o, Object o1, Type type, int i) {
-                jsonSerializer.write(((RequestMethod)o).name().toLowerCase(Locale.ROOT));
+                jsonSerializer.write(((RequestMethod) o).name().toLowerCase(Locale.ROOT));
+            }
+        });
+        s.put(SwaggerPropertyType.class, new ObjectSerializer() {
+            @Override
+            public void write(JSONSerializer jsonSerializer, Object o, Object o1, Type type, int i) {
+                if(((SwaggerPropertyType) o) == SwaggerPropertyType.booleanc){
+                    jsonSerializer.write("boolean");
+                    return;
+                }
+                jsonSerializer.write(((SwaggerPropertyType) o).name().toLowerCase(Locale.ROOT));
             }
         });
         FileUtils.writeByteArrayToFile(new File(url + fileName), JSON.toJSONBytes(swagger, SerializeConfig.getGlobalInstance()), false);

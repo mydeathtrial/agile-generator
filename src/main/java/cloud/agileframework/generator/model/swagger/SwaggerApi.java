@@ -23,7 +23,7 @@ public class SwaggerApi {
     private Map<String, ResponseData> responses;
 
     public enum IN {
-        query, body, path, formData, header
+        query, body, path, formData, header,cookie
     }
 
     @Data
@@ -42,7 +42,8 @@ public class SwaggerApi {
         private Set<String> enums;
         private SwaggerProperty items;
         private SwaggerCollectionFormat collectionFormat;
-
+        private SwaggerProperty schema;
+        private String title;
     }
 
     @Data
@@ -60,6 +61,7 @@ public class SwaggerApi {
         private SwaggerCollectionFormat collectionFormat;
         @JSONField(name = "$ref")
         private String ref;
+        private String title;
 
         public static Builder builder() {
             return new Builder();
@@ -76,7 +78,8 @@ public class SwaggerApi {
             private SwaggerProperty items;
             private SwaggerCollectionFormat collectionFormat;
             private String ref;
-
+            private String title;
+            
             public Builder property(String key, SwaggerProperty property) {
                 if (properties == null) {
                     this.properties = Maps.newConcurrentMap();
@@ -138,6 +141,11 @@ public class SwaggerApi {
                 return this;
             }
 
+            public Builder title(String title) {
+                this.title = title;
+                return this;
+            }
+
             public SwaggerProperty build() {
                 SwaggerProperty a = new SwaggerProperty();
                 a.setFormat(format);
@@ -150,6 +158,7 @@ public class SwaggerApi {
                 a.setCollectionFormat(collectionFormat);
                 a.setItems(items);
                 a.setRef(ref);
+                a.setTitle(title);
                 return a;
             }
         }
