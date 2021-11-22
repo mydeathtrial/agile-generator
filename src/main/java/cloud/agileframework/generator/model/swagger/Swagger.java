@@ -2,6 +2,7 @@ package cloud.agileframework.generator.model.swagger;
 
 import cloud.agileframework.common.util.http.RequestMethod;
 import cloud.agileframework.common.util.number.NumberUtil;
+import cloud.agileframework.common.util.string.StringUtil;
 import cloud.agileframework.generator.model.ColumnModel;
 import cloud.agileframework.generator.model.ParentKeyColumn;
 import cloud.agileframework.generator.model.PrimaryKeyColumn;
@@ -64,30 +65,32 @@ public class Swagger {
     private Map<String, Map<RequestMethod, SwaggerApi>> createApis(TableModel t) {
         Map<String, Map<RequestMethod, SwaggerApi>> result = Maps.newConcurrentMap();
 
+        String lowerName = StringUtil.toLowerName(t.getJavaName());
+        
         Map<RequestMethod, SwaggerApi> map = Maps.newConcurrentMap();
         addApi(t, map);
         updateApi(t, map);
         deleteApi(t, map);
-        result.put("/api/" + t.getJavaName(), map);
+        result.put("/api/" + lowerName, map);
 
         Map<RequestMethod, SwaggerApi> map1 = Maps.newConcurrentMap();
         findByIdApi(t, map1);
-        result.put("/api/" + t.getJavaName() + "/{id}", map1);
+        result.put("/api/" + lowerName + "/{id}", map1);
 
         Map<RequestMethod, SwaggerApi> map2 = Maps.newConcurrentMap();
         pageApi(t, map2);
-        result.put("/api/" + t.getJavaName() + "/page", map2);
+        result.put("/api/" + lowerName + "/page", map2);
 
         Map<RequestMethod, SwaggerApi> map3 = Maps.newConcurrentMap();
         importApi(t, map3);
         exportApi(t, map3);
-        result.put("/api/" + t.getJavaName() + "/store", map3);
+        result.put("/api/" + lowerName + "/store", map3);
 
         Optional<ColumnModel> isTree = t.getColumns().stream().filter(c -> c instanceof ParentKeyColumn).findAny();
         if (isTree.isPresent()) {
             Map<RequestMethod, SwaggerApi> map4 = Maps.newConcurrentMap();
             treeApi(t, map4);
-            result.put("/api/" + t.getJavaName() + "/tree", map4);
+            result.put("/api/" + lowerName + "/tree", map4);
         }
 
         return result;

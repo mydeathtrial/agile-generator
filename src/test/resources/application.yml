@@ -4,7 +4,7 @@ agile:
     entity-prefix: ''
     entity-suffix: Entity
     entity-url: E:\workspace-agile\agile-parent\agile-abstract-business\src\test\java\com\agile\entity1
-    table-name: 'pub_message'
+    table-name: 'obj_%'
     annotation: LOMBOK,REMARK,JPA,HIBERNATE
     keywords: order,dec,desc
     column-type:
