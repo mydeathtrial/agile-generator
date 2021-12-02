@@ -1,7 +1,7 @@
 <#if (entityPackageName?? && entityPackageName!="")>package ${entityPackageName};
 
-</#if>import java.io.Serializable;
-import cloud.agileframework.abstractbusiness.pojo.entity.BaseEntity;
+</#if>
+import cloud.agileframework.abstractbusiness.pojo.vo.BaseInParamVo;
 <#list importDesc as import>
     import ${import};
 </#list>
@@ -11,10 +11,7 @@ import cloud.agileframework.abstractbusiness.pojo.entity.BaseEntity;
 *
 * @author agile generator
 */
-<#list annotationDesc as annotation>
-    ${annotation}
-</#list>
-public class ${entityName} extends BaseEntity implements Serializable {
+public class ${entityName}Vo extends BaseInParamVo {
 
 private static final long serialVersionUID = 1L;
 <#list columns as property>

@@ -28,6 +28,7 @@ public class ServiceGenerator extends ByTableGenerator {
         String url = parseUrl(generator.getServiceUrl());
         String fileName = tableModel.getServiceName() + fileExtension();
         tableModel.setServicePackageName(getPackPath(url));
+        tableModel.build();
         FreemarkerUtil.generatorProxy(freemarkerTemplate(), url, fileName, tableModel, false);
     }
 }

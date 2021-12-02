@@ -1,10 +1,10 @@
 package cloud.agileframework.generator.model;
 
+import cloud.agileframework.common.annotation.Remark;
 import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.common.util.db.DataBaseUtil;
 import cloud.agileframework.common.util.object.ObjectUtil;
 import cloud.agileframework.common.util.string.StringUtil;
-import cloud.agileframework.generator.annotation.Remark;
 import cloud.agileframework.generator.properties.AnnotationType;
 import cloud.agileframework.spring.util.BeanUtil;
 import com.google.common.collect.Sets;
@@ -60,6 +60,14 @@ public class TableModel extends BaseModel {
     private boolean haveGetMethod;
     private boolean haveEqualsAndHashCodeMethod = true;
 
+    public void build() {
+        //处理导入类信息
+        columns.forEach(c -> {
+            c.build();
+            setImport(c.getImports());
+        });
+    }
+
     public void setColumn(ColumnModel columns) {
         this.columns.add(columns);
     }
@@ -93,11 +101,10 @@ public class TableModel extends BaseModel {
                 columnModel = ObjectUtil.getObjectFromMap(ColumnModel.class, column);
             }
 
-            columnModel.build();
-            setImport(columnModel.getImports());
             setColumn(columnModel);
         }
 
+        //处理外键
         fkHandler(tableName);
 
         this.serviceName = getProperties().getServicePrefix() + javaName + getProperties().getServiceSuffix();
@@ -176,8 +183,6 @@ public class TableModel extends BaseModel {
                 columnModel.setFktableName(columnModel.getFktableName() + 1);
             }
             cache.add(columnModel.getFktableName());
-            columnModel.build();
-            setImport(columnModel.getImports());
             setColumn(columnModel);
         });
     }
@@ -235,6 +240,11 @@ public class TableModel extends BaseModel {
             @Override
             public String value() {
                 return toBlank(getRemarks());
+            }
+
+            @Override
+            public boolean ignoreCompare() {
+                return false;
             }
         }, AnnotationType.REMARK, desc -> getAnnotationDesc().add(desc));
     }

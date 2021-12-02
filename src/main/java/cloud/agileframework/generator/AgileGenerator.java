@@ -21,6 +21,7 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.StandardEnvironment;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -40,11 +41,11 @@ public class AgileGenerator {
      *
      * @return 所有表信息
      */
-    private static List<Map<String, Object>> getTableInfo() {
+    private static List<Map<String, Object>> getTableInfo(String tables) {
         return DataBaseUtil.listTables(dataSourceProperties.getUrl(),
                 dataSourceProperties.getUsername(),
                 dataSourceProperties.getPassword(),
-                generator.getTableName());
+                tables);
     }
 
     /**
@@ -77,7 +78,16 @@ public class AgileGenerator {
      * 生成器
      */
     static void generator() {
-        List<Map<String, Object>> tables = getTableInfo();
+        String tableNames = generator.getTableName();
+        if (tableNames.contains(";")) {
+            Arrays.stream(tableNames.split(";")).forEach(AgileGenerator::generator);
+        }
+
+        generator(tableNames);
+    }
+
+    private static void generator(String tableNames) {
+        List<Map<String, Object>> tables = getTableInfo(tableNames);
         if (tables == null || tables.isEmpty()) {
             throw new RuntimeException("未加载到任何数据库表信息");
         }
@@ -91,7 +101,6 @@ public class AgileGenerator {
                     .stream().filter(g -> g.is(generator.getTypes()))
                     .forEach(g -> {
                         try {
-
                             g.generateFile(tableModel);
                             allTableModel.add(tableModel);
                         } catch (TemplateException | IOException e) {

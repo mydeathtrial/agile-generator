@@ -66,7 +66,7 @@ public class Swagger {
         Map<String, Map<RequestMethod, SwaggerApi>> result = Maps.newConcurrentMap();
 
         String lowerName = StringUtil.toLowerName(t.getJavaName());
-        
+
         Map<RequestMethod, SwaggerApi> map = Maps.newConcurrentMap();
         addApi(t, map);
         updateApi(t, map);
@@ -162,6 +162,7 @@ public class Swagger {
         return Collectors.toMap(ColumnModel::getJavaName, c -> {
             SwaggerApi.SwaggerProperty v = SwaggerApi.SwaggerProperty.builder()
                     .type(swaggerPropertyType(c))
+                    .required(c.getJavaName())
                     .title(c.getRemarks())
                     .format(swaggerPropertyFormat(c))
                     .build();
@@ -256,10 +257,11 @@ public class Swagger {
                             .schema(properties(SwaggerApi.SwaggerProperty.builder()
                                     .type(SwaggerPropertyType.object)
                                     .title("查询结果")
-                                    .property("total", SwaggerApi.SwaggerProperty.builder().title("总条数").type(SwaggerPropertyType.integer).format(SwaggerPropertyFormat.int32).defaults(20).build())
+                                    .required("total").property("total", SwaggerApi.SwaggerProperty.builder().title("总条数").type(SwaggerPropertyType.integer).format(SwaggerPropertyFormat.int32).defaults(20).build())
                                     .property("context", SwaggerApi.SwaggerProperty.builder().title("当前页面数据").type(SwaggerPropertyType.array).items(
                                             SwaggerApi.SwaggerProperty.builder()
                                                     .type(SwaggerPropertyType.object)
+                                                    .required(t.getColumns().stream().map(ColumnModel::getJavaName).toArray(String[]::new))
                                                     .properties(t.getColumns()
                                                             .stream()
                                                             .collect(getColumnModelMapCollector()))
@@ -450,17 +452,18 @@ public class Swagger {
         SwaggerApi.SwaggerProperty.Builder propertyBuilder = SwaggerApi.SwaggerProperty.builder();
 
         propertyBuilder.type(SwaggerPropertyType.object);
-        propertyBuilder.property("head", SwaggerApi.SwaggerProperty.builder()
+        propertyBuilder.required("head", "result").property("head", SwaggerApi.SwaggerProperty.builder()
                 .title("响应头")
                 .type(SwaggerPropertyType.object)
-                .property("ip", SwaggerApi.SwaggerProperty.builder().title("服务器IP").type(SwaggerPropertyType.string).example("11.66.77.116").build())
-                .property("code", SwaggerApi.SwaggerProperty.builder().title("业务代码").description("6位业务代码，第一位（0代表成功，1代表失败，2代表错误，3代表警告）。第二、三位代表业务领域编号。后三位代表实际业务服务").type(SwaggerPropertyType.string).example("000000").build())
-                .property("msg", SwaggerApi.SwaggerProperty.builder().title("响应信息").description("可用于前端冒泡提示框").type(SwaggerPropertyType.string).example("服务执行成功").build())
-                .property("status", SwaggerApi.SwaggerProperty.builder().ref("HttpStatus").build())
+                .required("ip").property("ip", SwaggerApi.SwaggerProperty.builder().title("服务器IP").type(SwaggerPropertyType.string).example("11.66.77.116").build())
+                .required("code").property("code", SwaggerApi.SwaggerProperty.builder().title("业务代码").description("6位业务代码，第一位（0代表成功，1代表失败，2代表错误，3代表警告）。第二、三位代表业务领域编号。后三位代表实际业务服务").type(SwaggerPropertyType.string).example("000000").build())
+                .required("msg").property("msg", SwaggerApi.SwaggerProperty.builder().title("响应信息").description("可用于前端冒泡提示框").type(SwaggerPropertyType.string).example("服务执行成功").build())
+                .required("status").property("status", SwaggerApi.SwaggerProperty.builder().ref("HttpStatus").build())
                 .build());
-        if (swaggerProperty != null) {
-            propertyBuilder.property("result", swaggerProperty);
+        if (swaggerProperty == null) {
+            swaggerProperty = SwaggerApi.SwaggerProperty.builder().type(SwaggerPropertyType.string).defaults(null).build();
         }
+        propertyBuilder.required("result").property("result", swaggerProperty);
 
         return propertyBuilder.build();
     }

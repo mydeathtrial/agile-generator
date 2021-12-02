@@ -2,9 +2,11 @@ package cloud.agileframework.generator.model.swagger;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,7 +25,7 @@ public class SwaggerApi {
     private Map<String, ResponseData> responses;
 
     public enum IN {
-        query, body, path, formData, header,cookie
+        query, body, path, formData, header, cookie
     }
 
     @Data
@@ -51,6 +53,7 @@ public class SwaggerApi {
         private SwaggerPropertyType type;
         private SwaggerPropertyFormat format;
         private Map<String, SwaggerProperty> properties;
+        private Set<String> required;
         private Object example;
         @JSONField(name = "default")
         private Object defaults;
@@ -69,6 +72,7 @@ public class SwaggerApi {
 
         public static class Builder {
             private Map<String, SwaggerProperty> properties;
+            private Set<String> required;
             private SwaggerPropertyType type;
             private SwaggerPropertyFormat format;
             private Object defaults;
@@ -79,12 +83,20 @@ public class SwaggerApi {
             private SwaggerCollectionFormat collectionFormat;
             private String ref;
             private String title;
-            
+
             public Builder property(String key, SwaggerProperty property) {
                 if (properties == null) {
                     this.properties = Maps.newConcurrentMap();
                 }
                 properties.put(key, property);
+                return this;
+            }
+
+            public Builder required(String... requireds) {
+                if (required == null) {
+                    this.required = Sets.newHashSet();
+                }
+                this.required.addAll(Arrays.asList(requireds));
                 return this;
             }
 
@@ -131,11 +143,6 @@ public class SwaggerApi {
                 return this;
             }
 
-            public Builder collectionFormat(SwaggerCollectionFormat collectionFormat) {
-                this.collectionFormat = collectionFormat;
-                return this;
-            }
-
             public Builder ref(String schema) {
                 this.ref = "#/definitions/" + schema;
                 return this;
@@ -159,6 +166,7 @@ public class SwaggerApi {
                 a.setItems(items);
                 a.setRef(ref);
                 a.setTitle(title);
+                a.setRequired(required);
                 return a;
             }
         }

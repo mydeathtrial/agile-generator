@@ -28,6 +28,7 @@ public class EntityGenerator extends ByTableGenerator {
         String url = parseUrl(generator.getEntityUrl());
         String fileName = tableModel.getEntityName() + fileExtension();
         tableModel.setEntityPackageName(getPackPath(url));
+        tableModel.build();
         FreemarkerUtil.generatorProxy(freemarkerTemplate(), url, fileName, tableModel, false);
     }
 }

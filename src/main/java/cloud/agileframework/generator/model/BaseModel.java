@@ -1,8 +1,8 @@
 package cloud.agileframework.generator.model;
 
+import cloud.agileframework.common.annotation.Remark;
 import cloud.agileframework.common.util.clazz.TypeReference;
 import cloud.agileframework.common.util.string.StringUtil;
-import cloud.agileframework.generator.annotation.Remark;
 import cloud.agileframework.generator.properties.AnnotationType;
 import cloud.agileframework.generator.properties.GeneratorProperties;
 import cloud.agileframework.spring.util.BeanUtil;
@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
@@ -33,12 +34,14 @@ import java.util.stream.IntStream;
  */
 @Setter
 @Getter
-public class BaseModel {
+public class BaseModel implements Serializable {
     private static GeneratorProperties properties = BeanUtil.getBean(GeneratorProperties.class);
     private static DataSourceProperties dataSourceProperties = BeanUtil.getBean(DataSourceProperties.class);
 
     private Set<Class<?>> imports = Sets.newHashSet();
     private Set<String> importDesc = Sets.newHashSet();
+    private Set<Annotation> annotations = Sets.newHashSet();
+    private Set<Class<? extends Annotation>> annotationClass = Sets.newHashSet();
     private Set<String> annotationDesc = Sets.newHashSet();
 
     private String remarks;

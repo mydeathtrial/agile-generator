@@ -5,6 +5,7 @@ import cloud.agileframework.generator.properties.AnnotationType;
 import cloud.agileframework.generator.properties.TYPE;
 import cloud.agileframework.generator.util.FreemarkerUtil;
 import freemarker.template.TemplateException;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
@@ -35,14 +36,15 @@ public class AgileAbstractBusinessGenerator extends ByTableGenerator {
         String fileName = tableModel.getEntityName() + fileExtension();
         tableModel.setEntityPackageName(getPackPath(url));
 
-        tableModel.getColumns().removeIf(c->c instanceof CreateTimeColumn 
+        tableModel.getColumns().removeIf(c -> c instanceof CreateTimeColumn
                 || c instanceof UpdateTimeColumn
                 || c instanceof CreateUserColumn
                 || c instanceof UpdateUserColumn
                 || c instanceof DeleteColumn);
-        
-        tableModel.getColumns().stream().filter(c->c instanceof PrimaryKeyColumn).forEach(c->{
-            c.addAnnotation(new GeneratedValue(){
+
+
+        tableModel.getColumns().stream().filter(c -> c instanceof PrimaryKeyColumn).forEach(c -> {
+            c.addAnnotation(new GeneratedValue() {
                 @Override
                 public Class<? extends Annotation> annotationType() {
                     return GeneratedValue.class;
@@ -59,7 +61,7 @@ public class AgileAbstractBusinessGenerator extends ByTableGenerator {
                 }
             }, AnnotationType.JPA, desc -> c.getAnnotationDesc().add(desc));
 
-            c.addAnnotation(new GenericGenerator(){
+            c.addAnnotation(new GenericGenerator() {
                 @Override
                 public Class<? extends Annotation> annotationType() {
                     return GenericGenerator.class;
@@ -81,7 +83,12 @@ public class AgileAbstractBusinessGenerator extends ByTableGenerator {
                 }
             }, AnnotationType.JPA, desc -> c.getAnnotationDesc().add(desc));
             tableModel.setImport(c.getImports());
+
         });
+
+        tableModel.getAnnotationDesc().remove("@Builder");
+        tableModel.addAnnotation(SuperBuilder.class, AnnotationType.LOMBOK, desc -> tableModel.getAnnotationDesc().add(desc));
+        tableModel.build();
         FreemarkerUtil.generatorProxy(freemarkerTemplate(), url, fileName, tableModel, false);
     }
 }

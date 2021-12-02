@@ -1,8 +1,8 @@
 package cloud.agileframework.generator.model;
 
+import cloud.agileframework.common.annotation.Remark;
 import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.common.util.string.StringUtil;
-import cloud.agileframework.generator.annotation.Remark;
 import cloud.agileframework.generator.properties.AnnotationType;
 import com.google.common.collect.Sets;
 import lombok.Builder;
@@ -11,8 +11,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -22,7 +20,6 @@ import java.lang.annotation.Annotation;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -52,7 +49,7 @@ public class ColumnModel extends BaseModel {
     private String dataType;
     private int columnSize;
     private String scopeTable;
-    private String isNullable;
+    private boolean notNull = false;
     private String nullable;
     private int decimalDigits;
     private String sqlDatetimeSub;
@@ -88,21 +85,18 @@ public class ColumnModel extends BaseModel {
 
             @Override
             public boolean nullable() {
-                return !"0".equals(getNullable());
+                return !isNotNull();
             }
 
             @Override
             public boolean insertable() {
-                return !(ColumnModel.this instanceof DeleteColumn)
-                        && !(ColumnModel.this instanceof CreateTimeColumn)
-                        && !(ColumnModel.this instanceof UpdateTimeColumn);
+                return !(ColumnModel.this instanceof DeleteColumn);
             }
 
             @Override
             public boolean updatable() {
                 return !(ColumnModel.this instanceof DeleteColumn)
-                        && !(ColumnModel.this instanceof CreateTimeColumn)
-                        && !(ColumnModel.this instanceof UpdateTimeColumn);
+                        && !(ColumnModel.this instanceof CreateTimeColumn);
             }
 
             @Override
@@ -137,212 +131,9 @@ public class ColumnModel extends BaseModel {
             }
         }, AnnotationType.JPA, desc -> getAnnotationDesc().add(desc));
 
-        if ("0".equals(nullable)) {
-            if (javaType == String.class) {
-                addAnnotation(new NotBlank() {
-                    @Override
-                    public Class<? extends Annotation> annotationType() {
-                        return NotBlank.class;
-                    }
+        validateHandler();
 
-                    @Override
-                    public String message() {
-                        return Boolean.parseBoolean(isPrimaryKey) ? "唯一标识不能为空" : toBlank(getRemarks()) + "不能为空";
-                    }
-
-                    @Override
-                    public Class<?>[] groups() {
-                        return new Class[0];
-                    }
-
-                    @Override
-                    public Class<? extends Payload>[] payload() {
-                        return new Class[0];
-                    }
-                }, AnnotationType.VALIDATE, desc -> getAnnotationDesc().add(desc));
-            } else {
-                addAnnotation(new NotNull() {
-                    @Override
-                    public Class<? extends Annotation> annotationType() {
-                        return NotNull.class;
-                    }
-
-                    @Override
-                    public String message() {
-                        return Boolean.parseBoolean(isPrimaryKey) ? "唯一标识不能为空" : toBlank(getRemarks()) + "不能为空";
-                    }
-
-                    @Override
-                    public Class<?>[] groups() {
-                        return new Class[0];
-                    }
-
-                    @Override
-                    public Class<? extends Payload>[] payload() {
-                        return new Class[0];
-                    }
-                }, AnnotationType.VALIDATE, desc -> getAnnotationDesc().add(desc));
-            }
-        }
-
-        if (columnSize > 0) {
-            if (javaType == String.class) {
-                addAnnotation(new Length() {
-                    @Override
-                    public Class<? extends Annotation> annotationType() {
-                        return Length.class;
-                    }
-
-                    @Override
-                    public int min() {
-                        return 0;
-                    }
-
-                    @Override
-                    public int max() {
-                        return columnSize;
-                    }
-
-                    @Override
-                    public String message() {
-                        return "最长为" + max() + "个字符";
-                    }
-
-                    @Override
-                    public Class<?>[] groups() {
-                        return new Class[0];
-                    }
-
-                    @Override
-                    public Class<? extends Payload>[] payload() {
-                        return new Class[0];
-                    }
-                }, AnnotationType.VALIDATE, desc -> getAnnotationDesc().add(desc));
-            } else if (javaType == int.class || javaType == Integer.class) {
-                addAnnotation(new Max() {
-                    @Override
-                    public Class<? extends Annotation> annotationType() {
-                        return Max.class;
-                    }
-
-                    @Override
-                    public String message() {
-                        return "{javax.validation.constraints.Max.message}";
-                    }
-
-                    @Override
-                    public Class<?>[] groups() {
-                        return new Class[0];
-                    }
-
-                    @Override
-                    public Class<? extends Payload>[] payload() {
-                        return new Class[0];
-                    }
-
-                    @Override
-                    public long value() {
-                        return Integer.MAX_VALUE;
-                    }
-                }, AnnotationType.VALIDATE, desc -> getAnnotationDesc().add(desc));
-
-                addAnnotation(new Min() {
-                    @Override
-                    public Class<? extends Annotation> annotationType() {
-                        return Min.class;
-                    }
-
-                    @Override
-                    public String message() {
-                        return "{javax.validation.constraints.Min.message}";
-                    }
-
-                    @Override
-                    public Class<?>[] groups() {
-                        return new Class[0];
-                    }
-
-                    @Override
-                    public Class<? extends Payload>[] payload() {
-                        return new Class[0];
-                    }
-
-                    @Override
-                    public long value() {
-                        return 0;
-                    }
-                }, AnnotationType.VALIDATE, desc -> getAnnotationDesc().add(desc));
-
-            } else if (javaType == long.class || javaType == Long.class) {
-                addAnnotation(new DecimalMax() {
-                    @Override
-                    public Class<? extends Annotation> annotationType() {
-                        return DecimalMax.class;
-                    }
-
-                    @Override
-                    public String message() {
-                        return "{javax.validation.constraints.DecimalMax.message}";
-                    }
-
-                    @Override
-                    public Class<?>[] groups() {
-                        return new Class[0];
-                    }
-
-                    @Override
-                    public Class<? extends Payload>[] payload() {
-                        return new Class[0];
-                    }
-
-                    @Override
-                    public String value() {
-                        return Long.toString(Long.MAX_VALUE);
-                    }
-
-                    @Override
-                    public boolean inclusive() {
-                        return true;
-                    }
-                }, AnnotationType.VALIDATE, desc -> getAnnotationDesc().add(desc));
-
-                addAnnotation(new DecimalMin() {
-                    @Override
-                    public Class<? extends Annotation> annotationType() {
-                        return DecimalMin.class;
-                    }
-
-                    @Override
-                    public String message() {
-                        return "{javax.validation.constraints.DecimalMin.message}";
-                    }
-
-                    @Override
-                    public Class<?>[] groups() {
-                        return new Class[0];
-                    }
-
-                    @Override
-                    public Class<? extends Payload>[] payload() {
-                        return new Class[0];
-                    }
-
-                    @Override
-                    public String value() {
-                        return Long.toString(Long.MAX_VALUE);
-                    }
-
-                    @Override
-                    public boolean inclusive() {
-                        return true;
-                    }
-                }, AnnotationType.VALIDATE, desc -> getAnnotationDesc().add(desc));
-            }
-        }
-
-        if (Boolean.parseBoolean(isPrimaryKey)) {
-            addAnnotation(Id.class, AnnotationType.JPA, desc -> getAnnotationDesc().add(desc));
-        } else {
+        if (!(ColumnModel.this instanceof PrimaryKeyColumn)) {
             if ("byte[]".equals(javaTypeName) ||
                     "java.sql.Blob".equals(javaTypeName) ||
                     "java.sql.Clob".equals(javaTypeName)) {
@@ -380,9 +171,227 @@ public class ColumnModel extends BaseModel {
             public String value() {
                 return toBlank(getRemarks());
             }
-        }, AnnotationType.REMARK, desc -> getFieldAnnotationDesc().add(desc));
 
-        setMethod(javaName);
+            @Override
+            public boolean ignoreCompare() {
+                return false;
+            }
+        }, AnnotationType.REMARK, desc -> getFieldAnnotationDesc().add(desc));
+    }
+
+    public void setNullable(String nullable) {
+        this.nullable = nullable;
+        notNull = "0".equals(nullable);
+    }
+
+    /**
+     * 参数验证
+     */
+    private void validateHandler() {
+        if (columnSize <= 0) {
+            return;
+        }
+        if (notNull && javaType == String.class) {
+            addAnnotation(new NotBlank() {
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return NotBlank.class;
+                }
+
+                @Override
+                public String message() {
+                    return Boolean.parseBoolean(isPrimaryKey) ? "唯一标识不能为空" : toBlank(getRemarks()) + "不能为空";
+                }
+
+                @Override
+                public Class<?>[] groups() {
+                    return new Class[0];
+                }
+
+                @Override
+                public Class<? extends Payload>[] payload() {
+                    return new Class[0];
+                }
+            }, AnnotationType.VALIDATE, desc -> getAnnotationDesc().add(desc));
+        }
+        if (notNull && javaType != String.class) {
+            addAnnotation(new NotNull() {
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return NotNull.class;
+                }
+
+                @Override
+                public String message() {
+                    return Boolean.parseBoolean(isPrimaryKey) ? "唯一标识不能为空" : toBlank(getRemarks()) + "不能为空";
+                }
+
+                @Override
+                public Class<?>[] groups() {
+                    return new Class[0];
+                }
+
+                @Override
+                public Class<? extends Payload>[] payload() {
+                    return new Class[0];
+                }
+            }, AnnotationType.VALIDATE, desc -> getAnnotationDesc().add(desc));
+        }
+        if (javaType == String.class) {
+            addAnnotation(new Length() {
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return Length.class;
+                }
+
+                @Override
+                public int min() {
+                    return 0;
+                }
+
+                @Override
+                public int max() {
+                    return columnSize;
+                }
+
+                @Override
+                public String message() {
+                    return "最长为" + max() + "个字符";
+                }
+
+                @Override
+                public Class<?>[] groups() {
+                    return new Class[0];
+                }
+
+                @Override
+                public Class<? extends Payload>[] payload() {
+                    return new Class[0];
+                }
+            }, AnnotationType.VALIDATE, desc -> getAnnotationDesc().add(desc));
+            return;
+        }
+        if (javaType == int.class || javaType == Integer.class) {
+            addAnnotation(new Max() {
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return Max.class;
+                }
+
+                @Override
+                public String message() {
+                    return "{javax.validation.constraints.Max.message}";
+                }
+
+                @Override
+                public Class<?>[] groups() {
+                    return new Class[0];
+                }
+
+                @Override
+                public Class<? extends Payload>[] payload() {
+                    return new Class[0];
+                }
+
+                @Override
+                public long value() {
+                    return Integer.MAX_VALUE;
+                }
+            }, AnnotationType.VALIDATE, desc -> getAnnotationDesc().add(desc));
+
+            addAnnotation(new Min() {
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return Min.class;
+                }
+
+                @Override
+                public String message() {
+                    return "{javax.validation.constraints.Min.message}";
+                }
+
+                @Override
+                public Class<?>[] groups() {
+                    return new Class[0];
+                }
+
+                @Override
+                public Class<? extends Payload>[] payload() {
+                    return new Class[0];
+                }
+
+                @Override
+                public long value() {
+                    return 0;
+                }
+            }, AnnotationType.VALIDATE, desc -> getAnnotationDesc().add(desc));
+            return;
+        }
+        if (javaType == long.class || javaType == Long.class) {
+            addAnnotation(new DecimalMax() {
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return DecimalMax.class;
+                }
+
+                @Override
+                public String message() {
+                    return "{javax.validation.constraints.DecimalMax.message}";
+                }
+
+                @Override
+                public Class<?>[] groups() {
+                    return new Class[0];
+                }
+
+                @Override
+                public Class<? extends Payload>[] payload() {
+                    return new Class[0];
+                }
+
+                @Override
+                public String value() {
+                    return Long.toString(Long.MAX_VALUE);
+                }
+
+                @Override
+                public boolean inclusive() {
+                    return true;
+                }
+            }, AnnotationType.VALIDATE, desc -> getAnnotationDesc().add(desc));
+
+            addAnnotation(new DecimalMin() {
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return DecimalMin.class;
+                }
+
+                @Override
+                public String message() {
+                    return "{javax.validation.constraints.DecimalMin.message}";
+                }
+
+                @Override
+                public Class<?>[] groups() {
+                    return new Class[0];
+                }
+
+                @Override
+                public Class<? extends Payload>[] payload() {
+                    return new Class[0];
+                }
+
+                @Override
+                public String value() {
+                    return Long.toString(Long.MAX_VALUE);
+                }
+
+                @Override
+                public boolean inclusive() {
+                    return true;
+                }
+            }, AnnotationType.VALIDATE, desc -> getAnnotationDesc().add(desc));
+        }
     }
 
 
@@ -401,37 +410,7 @@ public class ColumnModel extends BaseModel {
         }
 
         javaName = javaName.replace(Constant.RegularAbout.UNDER_LINE, Constant.RegularAbout.BLANK);
-
-//        if ("updateTime".equals(javaName) || "updateDate".equals(javaName)) {
-//
-//            addAnnotation(new Temporal() {
-//                @Override
-//                public Class<? extends Annotation> annotationType() {
-//                    return Temporal.class;
-//                }
-//
-//                @Override
-//                public TemporalType value() {
-//                    return TemporalType.TIMESTAMP;
-//                }
-//            }, AnnotationType.JPA, desc -> getAnnotationDesc().add(desc));
-//            addAnnotation(UpdateTimestamp.class, AnnotationType.JPA, desc -> getAnnotationDesc().add(desc));
-//        }
-
-//        if ("creatDate".equals(javaName) || "creatTime".equals(javaName) || "createTime".equals(javaName) || "createDate".equals(javaName)) {
-//            addAnnotation(new Temporal() {
-//                @Override
-//                public Class<? extends Annotation> annotationType() {
-//                    return Temporal.class;
-//                }
-//
-//                @Override
-//                public TemporalType value() {
-//                    return TemporalType.TIMESTAMP;
-//                }
-//            }, AnnotationType.JPA, desc -> getAnnotationDesc().add(desc));
-//            addAnnotation(CreationTimestamp.class, AnnotationType.JPA, desc -> getAnnotationDesc().add(desc));
-//        }
+        setMethod(javaName);
     }
 
     public void setTypeName(String typeName) {
@@ -531,9 +510,10 @@ public class ColumnModel extends BaseModel {
 
     /**
      * 根据字段信息判断是不是该类型数据
+     *
      * @return true 是
      */
-    public boolean isGeneric(){
+    public boolean isGeneric() {
         return true;
     }
 }

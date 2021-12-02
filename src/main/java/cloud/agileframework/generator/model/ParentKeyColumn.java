@@ -12,7 +12,7 @@ import java.util.Map;
 @Setter
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class ParentKeyColumn extends ColumnModel{
+public class ParentKeyColumn extends ColumnModel {
     public static boolean is(Map<String, Object> column) {
         String columnName = String.valueOf(column.get("COLUMN_NAME")).toLowerCase(Locale.ROOT);
         return "parent_id".equals(columnName);
