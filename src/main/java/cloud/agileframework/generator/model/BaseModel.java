@@ -2,13 +2,20 @@ package cloud.agileframework.generator.model;
 
 import cloud.agileframework.common.annotation.Remark;
 import cloud.agileframework.common.util.clazz.TypeReference;
+import cloud.agileframework.common.util.object.ObjectUtil;
 import cloud.agileframework.common.util.string.StringUtil;
+import cloud.agileframework.dictionary.annotation.Dictionary;
+import cloud.agileframework.dictionary.annotation.DirectionType;
+import cloud.agileframework.generator.model.config.PropertyBaseValue;
+import cloud.agileframework.generator.model.config.PropertyConfig;
+import cloud.agileframework.generator.model.config.PropertyDicValue;
 import cloud.agileframework.generator.properties.AnnotationType;
 import cloud.agileframework.generator.properties.GeneratorProperties;
 import cloud.agileframework.spring.util.BeanUtil;
 import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -43,6 +50,7 @@ public class BaseModel implements Serializable {
     private Set<Annotation> annotations = Sets.newHashSet();
     private Set<Class<? extends Annotation>> annotationClass = Sets.newHashSet();
     private Set<String> annotationDesc = Sets.newHashSet();
+    private Set<String> validateAnnotationDesc = Sets.newHashSet();
 
     private String remarks;
 
@@ -62,7 +70,7 @@ public class BaseModel implements Serializable {
      * @param consumer   自定义方法
      * @return 用于freemark的描述
      */
-    public static String annotationToDesc(Annotation annotation, Consumer<Class<?>> consumer) {
+    public String annotationToDesc(Annotation annotation, Consumer<Class<?>> consumer) {
         Class<? extends Annotation> type = annotation.annotationType();
         consumer.accept(type);
         Method[] methods = type.getDeclaredMethods();
@@ -104,13 +112,16 @@ public class BaseModel implements Serializable {
      * @param annotationPropertyValue 属性值
      * @return 可直接用于freemark打印的字符串
      */
-    private static String annotationPropertyValueToDesc(Consumer<Class<?>> consumer, Class<?> annotationPropertyType, Object annotationPropertyValue) {
+    private String annotationPropertyValueToDesc(Consumer<Class<?>> consumer, Class<?> annotationPropertyType, Object annotationPropertyValue) {
         String stringValue;
         if (annotationPropertyValue instanceof String) {
             stringValue = String.format("\"%s\"", annotationPropertyValue);
         } else if (Annotation.class.isAssignableFrom(annotationPropertyType)) {
             stringValue = String.format("%s",
                     annotationToDesc((Annotation) annotationPropertyValue, consumer));
+        } else if (annotationPropertyValue instanceof Class) {
+            setImport((Class<?>) annotationPropertyValue);
+            stringValue = String.format("%s.class",((Class<?>) annotationPropertyValue).getSimpleName());
         } else if (annotationPropertyValue != null && annotationPropertyValue.getClass().isArray()) {
             Class<?> innerClass = TypeReference.extractArray(annotationPropertyValue.getClass());
 
@@ -162,10 +173,17 @@ public class BaseModel implements Serializable {
     }
 
     public void setRemarks(String remarks) {
-        this.remarks = deleteHiddenCharacter(remarks);
+        this.remarks = deleteHiddenCharacter(remarks.substring(0,remarks.indexOf("\r\n")));
         if (!StringUtil.isEmpty(this.remarks)) {
             setImport(Remark.class);
         }
+
+        String json = remarks.substring(remarks.indexOf("\r\n")+2);
+        PropertyConfig propertyConfig = ObjectUtil.to(json,new TypeReference<PropertyConfig>(){});
+        if(propertyConfig==null || !(this instanceof ColumnModel)){
+            return;
+        }
+        ((ColumnModel)this).setPropertyConfig(propertyConfig);
     }
 
     public String deleteHiddenCharacter(String str) {
@@ -176,13 +194,13 @@ public class BaseModel implements Serializable {
     }
 
     public void addAnnotation(Annotation annotation, AnnotationType annotationType, Consumer<String> consumer) {
-        if (getProperties().getAnnotation().contains(annotationType)) {
+        if (ArrayUtils.contains(getProperties().getAnnotation(),annotationType)) {
             consumer.accept(annotationToDesc(annotation, this::setImport));
         }
     }
 
     public void addAnnotation(Class<? extends Annotation> annotation, AnnotationType annotationType, Consumer<String> consumer) {
-        if (getProperties().getAnnotation().contains(annotationType)) {
+        if (ArrayUtils.contains(getProperties().getAnnotation(),annotationType)) {
             consumer.accept(annotationToDesc(annotation, this::setImport));
         }
     }

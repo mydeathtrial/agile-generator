@@ -65,32 +65,31 @@ public class Swagger {
     private Map<String, Map<RequestMethod, SwaggerApi>> createApis(TableModel t) {
         Map<String, Map<RequestMethod, SwaggerApi>> result = Maps.newConcurrentMap();
 
-        String lowerName = StringUtil.toLowerName(t.getJavaName());
-
         Map<RequestMethod, SwaggerApi> map = Maps.newConcurrentMap();
         addApi(t, map);
         updateApi(t, map);
         deleteApi(t, map);
-        result.put("/api/" + lowerName, map);
+        String baseUrl = "/api/" + t.getModelName() + "/" + t.getJavaName();
+        result.put(baseUrl, map);
 
         Map<RequestMethod, SwaggerApi> map1 = Maps.newConcurrentMap();
         findByIdApi(t, map1);
-        result.put("/api/" + lowerName + "/{id}", map1);
+        result.put(baseUrl + "/{id}", map1);
 
         Map<RequestMethod, SwaggerApi> map2 = Maps.newConcurrentMap();
         pageApi(t, map2);
-        result.put("/api/" + lowerName + "/page", map2);
+        result.put(baseUrl + "/page", map2);
 
         Map<RequestMethod, SwaggerApi> map3 = Maps.newConcurrentMap();
         importApi(t, map3);
         exportApi(t, map3);
-        result.put("/api/" + lowerName + "/store", map3);
+        result.put(baseUrl + "/store", map3);
 
         Optional<ColumnModel> isTree = t.getColumns().stream().filter(c -> c instanceof ParentKeyColumn).findAny();
         if (isTree.isPresent()) {
             Map<RequestMethod, SwaggerApi> map4 = Maps.newConcurrentMap();
             treeApi(t, map4);
-            result.put("/api/" + lowerName + "/tree", map4);
+            result.put(baseUrl + "/tree", map4);
         }
 
         return result;
@@ -184,20 +183,22 @@ public class Swagger {
         SwaggerApi.ResponseData value = SwaggerApi.ResponseData.builder()
                 .description("操作成功")
                 .schema(properties(SwaggerApi.SwaggerProperty.builder()
-                        .type(SwaggerPropertyType.object)
+                        .type(SwaggerPropertyType.array)
+                        .items(SwaggerApi.SwaggerProperty.builder()
+                                .property("id", SwaggerApi.SwaggerProperty.builder().title("唯一标识").type(SwaggerPropertyType.string).build())
+                                .property("parentId", SwaggerApi.SwaggerProperty.builder().title("父级唯一标识").type(SwaggerPropertyType.string).build())
+                                .property("children", SwaggerApi.SwaggerProperty.builder().title("子节点").type(SwaggerPropertyType.array).items(
+                                        SwaggerApi.SwaggerProperty.builder()
+                                                .property("id", SwaggerApi.SwaggerProperty.builder().title("唯一标识").type(SwaggerPropertyType.string).build())
+                                                .property("parentId", SwaggerApi.SwaggerProperty.builder().title("父级唯一标识").type(SwaggerPropertyType.string).build())
+                                                .property("children", SwaggerApi.SwaggerProperty.builder().title("子节点").type(SwaggerPropertyType.array).items(SwaggerApi.SwaggerProperty.builder().type(SwaggerPropertyType.object).build()).build())
+                                                .properties(t.getColumns()
+                                                        .stream().filter(ColumnModel::isGeneric)
+                                                        .collect(getColumnModelMapCollector())).build()).build())
+                                .properties(t.getColumns()
+                                        .stream().filter(ColumnModel::isGeneric)
+                                        .collect(getColumnModelMapCollector())).build())
                         .title("查询结果")
-                        .property("id", SwaggerApi.SwaggerProperty.builder().title("唯一标识").type(SwaggerPropertyType.string).build())
-                        .property("parentId", SwaggerApi.SwaggerProperty.builder().title("父级唯一标识").type(SwaggerPropertyType.string).build())
-                        .property("children", SwaggerApi.SwaggerProperty.builder().title("子节点").type(SwaggerPropertyType.array).items(
-                                SwaggerApi.SwaggerProperty.builder()
-                                        .property("id", SwaggerApi.SwaggerProperty.builder().title("唯一标识").type(SwaggerPropertyType.string).build())
-                                        .property("parentId", SwaggerApi.SwaggerProperty.builder().title("父级唯一标识").type(SwaggerPropertyType.string).build())
-                                        .property("children", SwaggerApi.SwaggerProperty.builder().title("子节点").type(SwaggerPropertyType.array).items(SwaggerApi.SwaggerProperty.builder().type(SwaggerPropertyType.object).build()).build())
-                                        .properties(t.getColumns()
-                                                .stream().filter(ColumnModel::isGeneric)
-                                                .collect(getColumnModelMapCollector())).build()).build())
-                        .properties(t.getColumns().stream().filter(ColumnModel::isGeneric)
-                                .collect(getColumnModelMapCollector()))
                         .build()))
                 .build();
 
@@ -206,7 +207,7 @@ public class Swagger {
                 .description(t.getRemarks() + "树形")
                 .summary(t.getRemarks() + "树形")
                 .operationId("tree_" + t.getJavaName())
-                .consumes(new String[]{"multipart/form-data"})
+                .consumes(new String[]{"application/json"})
                 .parameters(createParameter())
                 .responses(new HashMap<String, SwaggerApi.ResponseData>() {{
                     put("200", value);
@@ -249,7 +250,7 @@ public class Swagger {
                 .description(t.getRemarks() + "分页")
                 .summary(t.getRemarks() + "分页")
                 .operationId("page_" + t.getJavaName())
-                .consumes(new String[]{"multipart/form-data"})
+                .consumes(new String[]{"application/json"})
                 .parameters(createParameter(swaggerApiParameter))
                 .responses(new HashMap<String, SwaggerApi.ResponseData>() {{
                     put("200", SwaggerApi.ResponseData.builder()
@@ -294,7 +295,7 @@ public class Swagger {
                 .description(t.getRemarks() + "批量导入")
                 .summary(t.getRemarks() + "批量导入")
                 .operationId("import_" + t.getJavaName())
-                .consumes(new String[]{"multipart/form-data"})
+                .consumes(new String[]{"application/json"})
                 .parameters(createParameter(swaggerApiParameter))
                 .responses(new HashMap<String, SwaggerApi.ResponseData>() {{
                     put("200", SwaggerApi.ResponseData.builder()
@@ -370,7 +371,7 @@ public class Swagger {
                 .tags(Sets.newHashSet(t.getRemarks()))
                 .summary("新建" + t.getRemarks())
                 .operationId("add_" + t.getJavaName())
-                .consumes(new String[]{"multipart/form-data"})
+                .consumes(new String[]{"application/json"})
                 .parameters(createParameter(swaggerApiParameter))
                 .responses(new HashMap<String, SwaggerApi.ResponseData>() {{
                     put("200", SwaggerApi.ResponseData.builder()
@@ -426,7 +427,7 @@ public class Swagger {
                 .tags(Sets.newHashSet(t.getRemarks()))
                 .summary("修改" + t.getRemarks())
                 .operationId("update_" + t.getJavaName())
-                .consumes(new String[]{"multipart/form-data"})
+                .consumes(new String[]{"application/json"})
                 .parameters(createParameter(swaggerApiParameter))
                 .responses(new HashMap<String, SwaggerApi.ResponseData>() {{
                     put("200", SwaggerApi.ResponseData.builder()

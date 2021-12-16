@@ -96,8 +96,19 @@
             <version>2.1.0.M5</version>
         </dependency>
         <dependency>
+            <groupId>cloud.agileframework</groupId>
+            <artifactId>agile-dictionary</artifactId>
+            <version>2.1.0.M5</version>
+        </dependency>
+        <dependency>
+            <groupId>cloud.agileframework</groupId>
+            <artifactId>agile-validate</artifactId>
+            <version>2.1.0.M5</version>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>1.18.20</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate.validator</groupId>
@@ -189,6 +200,11 @@
                             <artifactId>lombok</artifactId>
                             <!-- 选择自己的版本即可 -->
                             <version>1.18.20</version>
+                        </path>
+                        <path>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-configuration-processor</artifactId>
+                            <version>2.4.0-M1</version>
                         </path>
                     </annotationProcessorPaths>
                     <source>1.8</source>

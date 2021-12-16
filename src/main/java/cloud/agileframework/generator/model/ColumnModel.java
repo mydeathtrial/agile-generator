@@ -3,12 +3,12 @@ package cloud.agileframework.generator.model;
 import cloud.agileframework.common.annotation.Remark;
 import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.common.util.string.StringUtil;
+import cloud.agileframework.generator.model.config.PropertyConfig;
 import cloud.agileframework.generator.properties.AnnotationType;
+import cloud.agileframework.validate.group.Insert;
+import cloud.agileframework.validate.group.Update;
 import com.google.common.collect.Sets;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.hibernate.validator.constraints.Length;
@@ -17,6 +17,7 @@ import javax.persistence.*;
 import javax.validation.Payload;
 import javax.validation.constraints.*;
 import java.lang.annotation.Annotation;
+import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -30,10 +31,13 @@ import java.util.Set;
  * @since 1.0
  */
 @Getter
+@Setter
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class ColumnModel extends BaseModel {
     private final Set<String> fieldAnnotationDesc = Sets.newHashSet();
+    private final Set<String> dicAnnotationDesc = Sets.newHashSet();
+    private PropertyConfig propertyConfig;
     private String tableCat;
     private String bufferLength;
     private String tableName;
@@ -191,7 +195,7 @@ public class ColumnModel extends BaseModel {
         if (columnSize <= 0) {
             return;
         }
-        if (notNull && javaType == String.class) {
+        if (notNull && javaType == String.class && !Boolean.parseBoolean(isPrimaryKey)) {
             addAnnotation(new NotBlank() {
                 @Override
                 public Class<? extends Annotation> annotationType() {
@@ -200,21 +204,21 @@ public class ColumnModel extends BaseModel {
 
                 @Override
                 public String message() {
-                    return Boolean.parseBoolean(isPrimaryKey) ? "唯一标识不能为空" : toBlank(getRemarks()) + "不能为空";
+                    return toBlank(getRemarks()) + "不能为空字符";
                 }
 
                 @Override
                 public Class<?>[] groups() {
-                    return new Class[0];
+                    return new Class[]{Insert.class, Update.class};
                 }
 
                 @Override
                 public Class<? extends Payload>[] payload() {
                     return new Class[0];
                 }
-            }, AnnotationType.VALIDATE, desc -> getAnnotationDesc().add(desc));
+            }, AnnotationType.VALIDATE, desc -> getValidateAnnotationDesc().add(desc));
         }
-        if (notNull && javaType != String.class) {
+        if (notNull && javaType != String.class && !Boolean.parseBoolean(isPrimaryKey)) {
             addAnnotation(new NotNull() {
                 @Override
                 public Class<? extends Annotation> annotationType() {
@@ -223,19 +227,19 @@ public class ColumnModel extends BaseModel {
 
                 @Override
                 public String message() {
-                    return Boolean.parseBoolean(isPrimaryKey) ? "唯一标识不能为空" : toBlank(getRemarks()) + "不能为空";
+                    return toBlank(getRemarks()) + "不能为Null";
                 }
 
                 @Override
                 public Class<?>[] groups() {
-                    return new Class[0];
+                    return new Class[]{Insert.class, Update.class};
                 }
 
                 @Override
                 public Class<? extends Payload>[] payload() {
-                    return new Class[0];
+                    return new Class[]{};
                 }
-            }, AnnotationType.VALIDATE, desc -> getAnnotationDesc().add(desc));
+            }, AnnotationType.VALIDATE, desc -> getValidateAnnotationDesc().add(desc));
         }
         if (javaType == String.class) {
             addAnnotation(new Length() {
@@ -261,14 +265,14 @@ public class ColumnModel extends BaseModel {
 
                 @Override
                 public Class<?>[] groups() {
-                    return new Class[0];
+                    return new Class[]{Insert.class, Update.class};
                 }
 
                 @Override
                 public Class<? extends Payload>[] payload() {
                     return new Class[0];
                 }
-            }, AnnotationType.VALIDATE, desc -> getAnnotationDesc().add(desc));
+            }, AnnotationType.VALIDATE, desc -> getValidateAnnotationDesc().add(desc));
             return;
         }
         if (javaType == int.class || javaType == Integer.class) {
@@ -285,7 +289,7 @@ public class ColumnModel extends BaseModel {
 
                 @Override
                 public Class<?>[] groups() {
-                    return new Class[0];
+                    return new Class[]{Insert.class, Update.class};
                 }
 
                 @Override
@@ -295,9 +299,13 @@ public class ColumnModel extends BaseModel {
 
                 @Override
                 public long value() {
-                    return Integer.MAX_VALUE;
+                    double a = (Math.pow(10, getColumnSize()) - 1);
+                    if (a > Long.MAX_VALUE) {
+                        return Long.MAX_VALUE;
+                    }
+                    return (long) a;
                 }
-            }, AnnotationType.VALIDATE, desc -> getAnnotationDesc().add(desc));
+            }, AnnotationType.VALIDATE, desc -> getValidateAnnotationDesc().add(desc));
 
             addAnnotation(new Min() {
                 @Override
@@ -312,7 +320,7 @@ public class ColumnModel extends BaseModel {
 
                 @Override
                 public Class<?>[] groups() {
-                    return new Class[0];
+                    return new Class[]{Insert.class, Update.class};
                 }
 
                 @Override
@@ -324,10 +332,15 @@ public class ColumnModel extends BaseModel {
                 public long value() {
                     return 0;
                 }
-            }, AnnotationType.VALIDATE, desc -> getAnnotationDesc().add(desc));
+            }, AnnotationType.VALIDATE, desc -> getValidateAnnotationDesc().add(desc));
             return;
         }
-        if (javaType == long.class || javaType == Long.class) {
+        if ((javaType == long.class || javaType == Long.class)
+                && !(this instanceof PrimaryKeyColumn)
+                && !(this instanceof ParentKeyColumn)
+                && !(this instanceof FExportKeyColumn)
+                && !(this instanceof FImportKeyColumn)
+        ) {
             addAnnotation(new DecimalMax() {
                 @Override
                 public Class<? extends Annotation> annotationType() {
@@ -341,7 +354,7 @@ public class ColumnModel extends BaseModel {
 
                 @Override
                 public Class<?>[] groups() {
-                    return new Class[0];
+                    return new Class[]{Insert.class, Update.class};
                 }
 
                 @Override
@@ -351,14 +364,14 @@ public class ColumnModel extends BaseModel {
 
                 @Override
                 public String value() {
-                    return Long.toString(Long.MAX_VALUE);
+                    return BigDecimal.valueOf(Math.pow(10, getColumnSize() - 1)).add(BigDecimal.valueOf(-1)).toString();
                 }
 
                 @Override
                 public boolean inclusive() {
                     return true;
                 }
-            }, AnnotationType.VALIDATE, desc -> getAnnotationDesc().add(desc));
+            }, AnnotationType.VALIDATE, desc -> getValidateAnnotationDesc().add(desc));
 
             addAnnotation(new DecimalMin() {
                 @Override
@@ -373,7 +386,7 @@ public class ColumnModel extends BaseModel {
 
                 @Override
                 public Class<?>[] groups() {
-                    return new Class[0];
+                    return new Class[]{Insert.class, Update.class};
                 }
 
                 @Override
@@ -383,14 +396,14 @@ public class ColumnModel extends BaseModel {
 
                 @Override
                 public String value() {
-                    return Long.toString(Long.MAX_VALUE);
+                    return "-" + (BigDecimal.valueOf(Math.pow(10, getColumnSize() - 2)).add(BigDecimal.valueOf(-1)));
                 }
 
                 @Override
                 public boolean inclusive() {
                     return true;
                 }
-            }, AnnotationType.VALIDATE, desc -> getAnnotationDesc().add(desc));
+            }, AnnotationType.VALIDATE, desc -> getValidateAnnotationDesc().add(desc));
         }
     }
 
@@ -515,5 +528,9 @@ public class ColumnModel extends BaseModel {
      */
     public boolean isGeneric() {
         return true;
+    }
+
+    public void setPropertyConfig(PropertyConfig propertyConfig) {
+        this.propertyConfig = propertyConfig;
     }
 }

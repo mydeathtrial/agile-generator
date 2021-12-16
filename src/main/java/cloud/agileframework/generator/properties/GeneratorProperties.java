@@ -2,6 +2,7 @@ package cloud.agileframework.generator.properties;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.math.BigDecimal;
@@ -74,7 +75,7 @@ public class GeneratorProperties {
      */
     private Map<String, Class<?>> columnType = new HashMap<>();
 
-    private Set<AnnotationType> annotation = Sets.newHashSet();
+    private AnnotationType[] annotation = new AnnotationType[]{};
 
     private List<String> keywords = Lists.newArrayList();
 
@@ -237,11 +238,11 @@ public class GeneratorProperties {
         this.columnType = columnType;
     }
 
-    public Set<AnnotationType> getAnnotation() {
+    public AnnotationType[] getAnnotation() {
         return annotation;
     }
 
-    public void setAnnotation(Set<AnnotationType> annotation) {
+    public void setAnnotation(AnnotationType[] annotation) {
         this.annotation = annotation;
     }
 

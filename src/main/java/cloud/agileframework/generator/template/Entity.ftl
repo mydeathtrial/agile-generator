@@ -35,6 +35,9 @@ public class ${entityName} implements Serializable {
     <#if property.annotationDesc??><#list property.annotationDesc as annotation>
     ${annotation}
     </#list></#if>
+    <#if property.validateAnnotationDesc??><#list property.validateAnnotationDesc as annotation>
+    ${annotation}
+    </#list></#if>
     public ${property.javaSimpleTypeName} ${property.getMethod}() {
         return ${property.javaName};
     }

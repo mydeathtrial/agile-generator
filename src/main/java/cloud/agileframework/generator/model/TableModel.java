@@ -2,13 +2,21 @@ package cloud.agileframework.generator.model;
 
 import cloud.agileframework.common.annotation.Remark;
 import cloud.agileframework.common.constant.Constant;
+import cloud.agileframework.common.util.clazz.TypeReference;
 import cloud.agileframework.common.util.db.DataBaseUtil;
 import cloud.agileframework.common.util.object.ObjectUtil;
 import cloud.agileframework.common.util.string.StringUtil;
+import cloud.agileframework.dictionary.DictionaryEngine;
+import cloud.agileframework.dictionary.annotation.Dictionary;
+import cloud.agileframework.dictionary.annotation.DirectionType;
+import cloud.agileframework.generator.model.config.PropertyBaseValue;
+import cloud.agileframework.generator.model.config.PropertyConfig;
+import cloud.agileframework.generator.model.config.PropertyDicValue;
 import cloud.agileframework.generator.properties.AnnotationType;
 import cloud.agileframework.spring.util.BeanUtil;
 import com.google.common.collect.Sets;
 import lombok.*;
+import org.apache.commons.lang3.ArrayUtils;
 import org.hibernate.annotations.ResultCheckStyle;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -47,18 +55,35 @@ public class TableModel extends BaseModel {
     private String refGeneration;
     private String typeName;
 
+    //根据表明转换出来的各种名字
+    private String javaName;
+    private String mvcPackageName;
     private String serviceName;
     private String entityName;
     private String entityCenterLineName;
-    private String javaName;
+    private String doName;
+    private String inVoName;
+    private String outVoName;
+
+    //归属种模块名
+    private String modelName;
+
+    //各种包名
     private String servicePackageName;
     private String entityPackageName;
+    private String voPackageName;
+    private String doPackageName;
+    private String controllerPackageName;
 
     private Set<ColumnModel> columns = Sets.newHashSet();
-
+    private Set<ColumnModel> newColumns = Sets.newHashSet();
     private boolean haveSetMethod;
     private boolean haveGetMethod;
     private boolean haveEqualsAndHashCodeMethod = true;
+    
+    //外键
+    private Set<FImportKeyColumn> fImportKeyColumns;
+    private Set<FExportKeyColumn> fExportKeyColumns;
 
     public void build() {
         //处理导入类信息
@@ -66,15 +91,26 @@ public class TableModel extends BaseModel {
             c.build();
             setImport(c.getImports());
         });
+        //处理导入类信息
+        newColumns.forEach(c -> {
+            c.build();
+            setImport(c.getImports());
+        });
     }
 
-    public void setColumn(ColumnModel columns) {
+    public void addColumn(ColumnModel columns) {
         this.columns.add(columns);
     }
 
     public void setTableName(String tableName) {
         this.tableName = tableName;
+        this.modelName = tableName.substring(0, tableName.indexOf("_"));
+        this.mvcPackageName = tableName.replaceFirst("_bt_", "_").substring(tableName.indexOf("_") + 1).replace("_","");
         this.javaName = StringUtil.toUpperName(tableName);
+
+        //处理外键
+        fExportKeysHandler(tableName);
+        fImportKeysHandler(tableName);
 
         List<Map<String, Object>> columnInfos = DataBaseUtil.listColumns(getDataSourceProperties().getUrl(),
                 getDataSourceProperties().getUsername(),
@@ -97,21 +133,34 @@ public class TableModel extends BaseModel {
                 columnModel = ObjectUtil.getObjectFromMap(UpdateUserColumn.class, column);
             } else if (ParentKeyColumn.is(column)) {
                 columnModel = ObjectUtil.getObjectFromMap(ParentKeyColumn.class, column);
+            } else if (FImportKeyColumn.is(column,fImportKeyColumns)) {
+                columnModel = ObjectUtil.getObjectFromMap(FImportKeyColumn.class, column);
             } else {
                 columnModel = ObjectUtil.getObjectFromMap(ColumnModel.class, column);
             }
 
-            setColumn(columnModel);
+            addColumn(columnModel);
         }
-
-        //处理外键
-        fkHandler(tableName);
+        Set<ColumnModel> newC = getColumns().stream()
+                .filter(c -> c.getPropertyConfig() != null)
+                .map(c -> {
+                    PropertyConfig propertyConfig = c.getPropertyConfig();
+                    PropertyBaseValue value = propertyConfig.getValue();
+                    if (value instanceof PropertyDicValue) {
+                        return parseNewColumn(c, value);
+                    }
+                    return null;
+                }).collect(Collectors.toSet());
+        this.newColumns.addAll(newC);
 
         this.serviceName = getProperties().getServicePrefix() + javaName + getProperties().getServiceSuffix();
         this.entityName = getProperties().getEntityPrefix() + javaName + getProperties().getEntitySuffix();
+        this.doName = javaName + "Do";
+        this.inVoName = javaName + "InVo";
+        this.outVoName = javaName + "OutVo";
         this.entityCenterLineName = StringUtil.toUnderline(javaName).replace(Constant.RegularAbout.UNDER_LINE, Constant.RegularAbout.MINUS).toLowerCase();
 
-        if (getProperties().getAnnotation().contains(AnnotationType.JPA) || getProperties().getAnnotation().contains(AnnotationType.VALIDATE)) {
+        if (ArrayUtils.contains(getProperties().getAnnotation(),AnnotationType.JPA) || ArrayUtils.contains(getProperties().getAnnotation(),AnnotationType.VALIDATE)) {
             addAnnotation(Setter.class, AnnotationType.LOMBOK, desc -> getAnnotationDesc().add(desc));
             addAnnotation(Builder.class, AnnotationType.LOMBOK, desc -> getAnnotationDesc().add(desc));
             addAnnotation(ToString.class, AnnotationType.LOMBOK, desc -> getAnnotationDesc().add(desc));
@@ -164,12 +213,66 @@ public class TableModel extends BaseModel {
         this.setImport(Objects.class);
     }
 
+    private ColumnModel parseNewColumn(ColumnModel c, PropertyBaseValue value) {
+        ColumnModel c1 = ObjectUtil.to(c,new TypeReference<DicColumn>(){});
+        c1.setColumnName(c.getColumnName()+"_name");
+        c1.getAnnotationDesc().clear();
+        c1.getFieldAnnotationDesc().clear();
+        c1.addAnnotation(new Dictionary(){
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Dictionary.class;
+            }
+
+            @Override
+            public String dicCode() {
+                return value.getValue();
+            }
+
+            @Override
+            public String[] fieldName() {
+                return new String[]{c.getJavaName()};
+            }
+
+            @Override
+            public boolean isFull() {
+                return false;
+            }
+
+            @Override
+            public String split() {
+                return "/";
+            }
+
+            @Override
+            public DirectionType directionType() {
+                return DirectionType.CODE_TO_NAME;
+            }
+
+            @Override
+            public String defaultValue() {
+                return NULL;
+            }
+
+            @Override
+            public boolean id() {
+                return false;
+            }
+
+            @Override
+            public String dataSource() {
+                return DictionaryEngine.DICTIONARY_DATA_CACHE;
+            }
+        },AnnotationType.AGILE,desc->c1.getDicAnnotationDesc().add(desc));
+        return c1;
+    }
+
     /**
      * 处理外键
      *
      * @param tableName 表
      */
-    private void fkHandler(String tableName) {
+    private void fExportKeysHandler(String tableName) {
         List<Map<String, Object>> fKeys = DataBaseUtil.listFKeys(getDataSourceProperties().getUrl(),
                 getDataSourceProperties().getUsername(),
                 getDataSourceProperties().getPassword(),
@@ -178,15 +281,44 @@ public class TableModel extends BaseModel {
         Set<String> cache = Sets.newHashSet();
 
         fKeys.forEach(fk -> {
-            FKeyColumn columnModel = ObjectUtil.getObjectFromMap(FKeyColumn.class, fk);
+            FExportKeyColumn columnModel = ObjectUtil.getObjectFromMap(FExportKeyColumn.class, fk);
             if (cache.contains(columnModel.getFktableName())) {
                 columnModel.setFktableName(columnModel.getFktableName() + 1);
             }
             cache.add(columnModel.getFktableName());
-            setColumn(columnModel);
+            addFExportKeyColumns(columnModel);
+//            newColumns.add(columnModel);
+        });
+
+        fImportKeysHandler(tableName);
+    }
+
+    private void fImportKeysHandler(String tableName) {
+        List<Map<String, Object>> fImportKeys = DataBaseUtil.listFImportKeys(getDataSourceProperties().getUrl(),
+                getDataSourceProperties().getUsername(),
+                getDataSourceProperties().getPassword(),
+                tableName);
+
+
+        fImportKeys.forEach(fk -> {
+            FImportKeyColumn columnModel = ObjectUtil.getObjectFromMap(FImportKeyColumn.class, fk);
+            addFImportKeyColumns(columnModel);
         });
     }
 
+    private void addFImportKeyColumns(FImportKeyColumn columnModel){
+        if(fImportKeyColumns == null){
+            fImportKeyColumns = Sets.newHashSet();
+        }
+        fImportKeyColumns.add(columnModel);
+    }
+    private void addFExportKeyColumns(FExportKeyColumn columnModel){
+        if(fExportKeyColumns == null){
+            fExportKeyColumns = Sets.newHashSet();
+        }
+        fExportKeyColumns.add(columnModel);
+    }
+    
     private void hibernateAnnotationHandler() {
         Set<PrimaryKeyColumn> primaryColumns = columns.stream().filter(c -> c instanceof PrimaryKeyColumn).map(c -> (PrimaryKeyColumn) c).collect(Collectors.toSet());
         Set<DeleteColumn> deleteColumns = columns.stream().filter(c -> c instanceof DeleteColumn).map(c -> (DeleteColumn) c).collect(Collectors.toSet());

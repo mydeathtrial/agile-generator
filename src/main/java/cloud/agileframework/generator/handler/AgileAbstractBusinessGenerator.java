@@ -11,6 +11,7 @@ import org.hibernate.annotations.Parameter;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 
@@ -27,15 +28,11 @@ public class AgileAbstractBusinessGenerator extends ByTableGenerator {
 
     @Override
     public TYPE type() {
-        return TYPE.AGILE_ENTITY;
+        return TYPE.AGILE_CODE;
     }
 
     @Override
     public void generateFile(TableModel tableModel) throws TemplateException, IOException {
-        String url = parseUrl(generator.getEntityUrl());
-        String fileName = tableModel.getEntityName() + fileExtension();
-        tableModel.setEntityPackageName(getPackPath(url));
-
         tableModel.getColumns().removeIf(c -> c instanceof CreateTimeColumn
                 || c instanceof UpdateTimeColumn
                 || c instanceof CreateUserColumn
@@ -89,6 +86,26 @@ public class AgileAbstractBusinessGenerator extends ByTableGenerator {
         tableModel.getAnnotationDesc().remove("@Builder");
         tableModel.addAnnotation(SuperBuilder.class, AnnotationType.LOMBOK, desc -> tableModel.getAnnotationDesc().add(desc));
         tableModel.build();
-        FreemarkerUtil.generatorProxy(freemarkerTemplate(), url, fileName, tableModel, false);
+
+        String baseUrl = parseUrl(generator.getEntityUrl()) + tableModel.getModelName() + File.separator + tableModel.getMvcPackageName() + File.separator;
+
+        String doUrl = baseUrl + "pojo" + File.separator + "db" + File.separator;
+        String doFileName = tableModel.getDoName() + fileExtension();
+        tableModel.setDoPackageName(getPackPath(doUrl));
+        FreemarkerUtil.generatorProxy("AgileDo.ftl", doUrl, doFileName, tableModel, false);
+
+        String voUrl = baseUrl + "pojo" + File.separator + "vo" + File.separator;
+        String inVoFileName = tableModel.getInVoName() + fileExtension();
+        tableModel.setVoPackageName(getPackPath(voUrl));
+        FreemarkerUtil.generatorProxy("AgileInVo.ftl", voUrl, inVoFileName, tableModel, false);
+        String outVoFileName = tableModel.getOutVoName() + fileExtension();
+        tableModel.setVoPackageName(getPackPath(voUrl));
+        FreemarkerUtil.generatorProxy("AgileOutVo.ftl", voUrl, outVoFileName, tableModel, false);
+
+        String controllerUrl = baseUrl + "controller" + File.separator;
+        String controllerFileName = tableModel.getJavaName() + "Controller" + fileExtension();
+        tableModel.setControllerPackageName(getPackPath(controllerUrl));
+        FreemarkerUtil.generatorProxy("AgileController.ftl", controllerUrl, controllerFileName, tableModel, false);
     }
 }
+

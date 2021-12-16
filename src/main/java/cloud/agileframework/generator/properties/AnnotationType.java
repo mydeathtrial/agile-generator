@@ -24,5 +24,6 @@ public enum AnnotationType {
      * lombok验证注解
      */
     LOMBOK,
-    REMARK
+    REMARK,
+    AGILE
 }

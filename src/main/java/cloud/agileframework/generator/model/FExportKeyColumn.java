@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class FKeyColumn extends ColumnModel {
+public class FExportKeyColumn extends ColumnModel {
     private String pkName;
     private String fktableSchem;
     private String deferrability;
