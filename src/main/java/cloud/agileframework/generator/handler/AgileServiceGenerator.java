@@ -15,10 +15,10 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 
-public class AgileAbstractBusinessGenerator extends ByTableGenerator {
+public class AgileServiceGenerator extends ByTableGenerator {
     @Override
     public String freemarkerTemplate() {
-        return "AgileEntity.ftl";
+        return "AgileService.ftl";
     }
 
     @Override
@@ -28,7 +28,7 @@ public class AgileAbstractBusinessGenerator extends ByTableGenerator {
 
     @Override
     public TYPE type() {
-        return TYPE.AGILE_CODE;
+        return TYPE.AGILE_SERVICE;
     }
 
     @Override
@@ -40,48 +40,48 @@ public class AgileAbstractBusinessGenerator extends ByTableGenerator {
                 || c instanceof DeleteColumn);
 
 
-        tableModel.getColumns().stream().filter(c -> c instanceof PrimaryKeyColumn).forEach(c -> {
-            c.addAnnotation(new GeneratedValue() {
-                @Override
-                public Class<? extends Annotation> annotationType() {
-                    return GeneratedValue.class;
-                }
-
-                @Override
-                public GenerationType strategy() {
-                    return GenerationType.AUTO;
-                }
-
-                @Override
-                public String generator() {
-                    return "custom-id";
-                }
-            }, AnnotationType.JPA, desc -> c.getAnnotationDesc().add(desc));
-
-            c.addAnnotation(new GenericGenerator() {
-                @Override
-                public Class<? extends Annotation> annotationType() {
-                    return GenericGenerator.class;
-                }
-
-                @Override
-                public String name() {
-                    return "custom-id";
-                }
-
-                @Override
-                public String strategy() {
-                    return "cloud.agileframework.jpa.dao.IDGenerator";
-                }
-
-                @Override
-                public Parameter[] parameters() {
-                    return new Parameter[0];
-                }
-            }, AnnotationType.JPA, desc -> c.getAnnotationDesc().add(desc));
-            tableModel.setImport(c.getImports());
-
-        });
+//        tableModel.getColumns().stream().filter(c -> c instanceof PrimaryKeyColumn).forEach(c -> {
+//            c.addAnnotation(new GeneratedValue() {
+//                @Override
+//                public Class<? extends Annotation> annotationType() {
+//                    return GeneratedValue.class;
+//                }
+//
+//                @Override
+//                public GenerationType strategy() {
+//                    return GenerationType.AUTO;
+//                }
+//
+//                @Override
+//                public String generator() {
+//                    return "custom-id";
+//                }
+//            }, AnnotationType.JPA, desc -> c.getAnnotationDesc().add(desc));
+//
+//            c.addAnnotation(new GenericGenerator() {
+//                @Override
+//                public Class<? extends Annotation> annotationType() {
+//                    return GenericGenerator.class;
+//                }
+//
+//                @Override
+//                public String name() {
+//                    return "custom-id";
+//                }
+//
+//                @Override
+//                public String strategy() {
+//                    return "cloud.agileframework.jpa.dao.IDGenerator";
+//                }
+//
+//                @Override
+//                public Parameter[] parameters() {
+//                    return new Parameter[0];
+//                }
+//            }, AnnotationType.JPA, desc -> c.getAnnotationDesc().add(desc));
+//            tableModel.setImport(c.getImports());
+//
+//        });
 
         tableModel.getAnnotationDesc().remove("@Builder");
         tableModel.addAnnotation(SuperBuilder.class, AnnotationType.LOMBOK, desc -> tableModel.getAnnotationDesc().add(desc));
@@ -102,10 +102,10 @@ public class AgileAbstractBusinessGenerator extends ByTableGenerator {
         tableModel.setVoPackageName(getPackPath(voUrl));
         FreemarkerUtil.generatorProxy("AgileOutVo.ftl", voUrl, outVoFileName, tableModel, false);
 
-        String controllerUrl = baseUrl + "controller" + File.separator;
-        String controllerFileName = tableModel.getJavaName() + "Controller" + fileExtension();
+        String controllerUrl = baseUrl + "service" + File.separator;
+        String controllerFileName = tableModel.getJavaName() + "Service" + fileExtension();
         tableModel.setControllerPackageName(getPackPath(controllerUrl));
-        FreemarkerUtil.generatorProxy("AgileController.ftl", controllerUrl, controllerFileName, tableModel, false);
+        FreemarkerUtil.generatorProxy(freemarkerTemplate(), controllerUrl, controllerFileName, tableModel, false);
     }
 }
 

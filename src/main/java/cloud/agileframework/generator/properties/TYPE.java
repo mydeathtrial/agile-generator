@@ -8,7 +8,8 @@ public enum TYPE {
      * 实体
      */
     ENTITY,
-    AGILE_CODE,
+    AGILE_SERVICE,
+    AGILE_CONTROLLER,
     /**
      * service
      */

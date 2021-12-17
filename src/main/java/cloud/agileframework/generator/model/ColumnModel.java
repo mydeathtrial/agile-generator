@@ -300,8 +300,8 @@ public class ColumnModel extends BaseModel {
                 @Override
                 public long value() {
                     double a = (Math.pow(10, getColumnSize()) - 1);
-                    if (a > Long.MAX_VALUE) {
-                        return Long.MAX_VALUE;
+                    if (a > Integer.MAX_VALUE) {
+                        return Integer.MAX_VALUE;
                     }
                     return (long) a;
                 }
