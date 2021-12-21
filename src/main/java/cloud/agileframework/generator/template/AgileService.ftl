@@ -19,7 +19,7 @@ import ${import};
 
 
 @AgileService
-@Mapping("/api/${modelName}/${javaName}")
+@Mapping("/api/${modelName}/${lowerName}")
 public class ${javaName}Service implements AllBusinessService<${doName}, ${inVoName}, ${outVoName}> {
 
 }

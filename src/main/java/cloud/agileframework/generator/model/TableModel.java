@@ -64,6 +64,7 @@ public class TableModel extends BaseModel {
     private String doName;
     private String inVoName;
     private String outVoName;
+    private String lowerName;
 
     //归属种模块名
     private String modelName;
@@ -107,6 +108,7 @@ public class TableModel extends BaseModel {
         this.modelName = tableName.substring(0, tableName.indexOf("_"));
         this.mvcPackageName = tableName.replaceFirst("_bt_", "_").substring(tableName.indexOf("_") + 1).replace("_","");
         this.javaName = StringUtil.toUpperName(tableName);
+        this.lowerName = StringUtil.toLowerName(tableName);
 
         //处理外键
         fExportKeysHandler(tableName);

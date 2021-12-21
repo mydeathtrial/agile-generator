@@ -69,7 +69,7 @@ public class Swagger {
         addApi(t, map);
         updateApi(t, map);
         deleteApi(t, map);
-        String baseUrl = "/api/" + t.getModelName() + "/" + t.getJavaName();
+        String baseUrl = "/api/" + t.getModelName() + "/" + t.getLowerName();
         result.put(baseUrl, map);
 
         Map<RequestMethod, SwaggerApi> map1 = Maps.newConcurrentMap();
