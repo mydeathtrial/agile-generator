@@ -380,6 +380,16 @@ public class TableModel extends BaseModel {
             public boolean ignoreCompare() {
                 return false;
             }
+
+            @Override
+            public boolean excelHead() {
+                return true;
+            }
+
+            @Override
+            public int sort() {
+                return 0;
+            }
         }, AnnotationType.REMARK, desc -> getAnnotationDesc().add(desc));
     }
 }
