@@ -253,7 +253,7 @@ public class TableModel extends BaseModel {
 
             @Override
             public String defaultValue() {
-                return NULL;
+                return Dictionary.DEFAULT_NAME;
             }
 
             @Override
