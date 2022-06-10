@@ -1,5 +1,6 @@
 package cloud.agileframework.generator.handler;
 
+import cloud.agileframework.common.util.file.FileUtil;
 import cloud.agileframework.common.util.string.StringUtil;
 import cloud.agileframework.generator.properties.GeneratorProperties;
 import cloud.agileframework.generator.properties.TYPE;
@@ -20,8 +21,8 @@ public abstract class AbstractGenerator {
      * @return 包名
      */
     String getPackPath(String url) {
-        url = parseUrl(url);
-        String javaSourceUrl = parseUrl(generator.getJavaSourceUrl());
+        url = FileUtil.parseFilePath(url);
+        String javaSourceUrl = FileUtil.parseFilePath(generator.getJavaSourceUrl());
         if (StringUtil.isEmpty(javaSourceUrl)) {
             String javaPath = File.separator + "java" + File.separator;
             if (!url.contains(javaPath)) {
@@ -41,7 +42,7 @@ public abstract class AbstractGenerator {
      * @param str 路径
      * @return 处理后的合法路径
      */
-    String parseUrl(String str) {
+    String parseFilePath(String str) {
         String url = str.replaceAll("[\\\\/]+", Matcher.quoteReplacement(File.separator));
         if (!url.endsWith(File.separator)) {
             url += File.separator;

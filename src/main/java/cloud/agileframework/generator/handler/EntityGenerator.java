@@ -1,5 +1,6 @@
 package cloud.agileframework.generator.handler;
 
+import cloud.agileframework.common.util.file.FileUtil;
 import cloud.agileframework.generator.model.TableModel;
 import cloud.agileframework.generator.properties.TYPE;
 import cloud.agileframework.generator.util.FreemarkerUtil;
@@ -25,7 +26,7 @@ public class EntityGenerator extends ByTableGenerator {
 
     @Override
     public void generateFile(TableModel tableModel) throws TemplateException, IOException {
-        String url = parseUrl(generator.getEntityUrl());
+        String url = FileUtil.parseFilePath(generator.getEntityUrl());
         String fileName = tableModel.getEntityName() + fileExtension();
         tableModel.setEntityPackageName(getPackPath(url));
         tableModel.build();

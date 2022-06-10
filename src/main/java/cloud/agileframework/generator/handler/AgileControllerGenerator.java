@@ -1,5 +1,6 @@
 package cloud.agileframework.generator.handler;
 
+import cloud.agileframework.common.util.file.FileUtil;
 import cloud.agileframework.generator.model.*;
 import cloud.agileframework.generator.properties.AnnotationType;
 import cloud.agileframework.generator.properties.TYPE;
@@ -87,7 +88,7 @@ public class AgileControllerGenerator extends ByTableGenerator {
         tableModel.addAnnotation(SuperBuilder.class, AnnotationType.LOMBOK, desc -> tableModel.getAnnotationDesc().add(desc));
         tableModel.build();
 
-        String baseUrl = parseUrl(generator.getEntityUrl()) + tableModel.getModelName() + File.separator + tableModel.getMvcPackageName() + File.separator;
+        String baseUrl = FileUtil.parseFilePath(generator.getEntityUrl()) + tableModel.getModelName() + File.separator + tableModel.getMvcPackageName() + File.separator;
 
         String doUrl = baseUrl + "pojo" + File.separator + "db" + File.separator;
         String doFileName = tableModel.getDoName() + fileExtension();

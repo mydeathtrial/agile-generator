@@ -1,5 +1,6 @@
 package cloud.agileframework.generator.handler;
 
+import cloud.agileframework.common.util.file.FileUtil;
 import cloud.agileframework.common.util.http.RequestMethod;
 import cloud.agileframework.generator.model.TableModel;
 import cloud.agileframework.generator.model.swagger.Swagger;
@@ -35,7 +36,7 @@ public class SwaggerGenerator extends ByAllTableGenerator {
 
     @Override
     public void generateFile(List<TableModel> tableModels) throws IOException {
-        String url = parseUrl(generator.getEntityUrl());
+        String url = FileUtil.parseFilePath(generator.getEntityUrl());
         String fileName = "swagger_" + System.currentTimeMillis() + fileExtension();
         Swagger swagger = new Swagger(tableModels);
 
