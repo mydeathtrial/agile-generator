@@ -257,11 +257,6 @@ public class TableModel extends BaseModel {
             }
 
             @Override
-            public boolean id() {
-                return false;
-            }
-
-            @Override
             public String dataSource() {
                 return DictionaryEngine.DICTIONARY_DATA_CACHE;
             }
