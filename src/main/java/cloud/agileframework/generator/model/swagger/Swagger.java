@@ -2,7 +2,6 @@ package cloud.agileframework.generator.model.swagger;
 
 import cloud.agileframework.common.util.http.RequestMethod;
 import cloud.agileframework.common.util.number.NumberUtil;
-import cloud.agileframework.common.util.string.StringUtil;
 import cloud.agileframework.generator.model.ColumnModel;
 import cloud.agileframework.generator.model.ParentKeyColumn;
 import cloud.agileframework.generator.model.PrimaryKeyColumn;
@@ -14,7 +13,15 @@ import lombok.Data;
 import org.apache.http.HttpStatus;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 

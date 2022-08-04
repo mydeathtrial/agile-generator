@@ -52,6 +52,7 @@ public abstract class AbstractGenerator {
 
     /**
      * 判断是否需要执行
+     *
      * @param types 生成类型
      * @return true生成
      */

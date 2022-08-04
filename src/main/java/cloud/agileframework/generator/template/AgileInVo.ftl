@@ -5,7 +5,7 @@ import cloud.agileframework.abstractbusiness.pojo.vo.BaseInParamVo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 <#list importDesc as import>
-import ${import};
+    import ${import};
 </#list>
 
 /**
@@ -17,18 +17,18 @@ import ${import};
 @Data
 public class ${inVoName} extends BaseInParamVo {
 
-    private static final long serialVersionUID = 1L;
+private static final long serialVersionUID = 1L;
 <#list columns as property>
     <#if (property.remarks?? && property.remarks!="")>
-    /**
-    * 描述：${property.remarks}
-    */
+        /**
+        * 描述：${property.remarks}
+        */
     </#if>
     <#list property.fieldAnnotationDesc as annotation>
-    ${annotation}
+        ${annotation}
     </#list>
     <#if property.validateAnnotationDesc??><#list property.validateAnnotationDesc as annotation>
-    ${annotation}
+        ${annotation}
     </#list></#if>
     private ${property.javaSimpleTypeName} ${property.javaName}<#if property.defValue??> = <#if property.javaSimpleTypeName=="Boolean" ||  property.javaSimpleTypeName=="boolean"><#if property.defValue=="0">false<#else>true</#if><#else>${property.defValue}</#if></#if>;
 </#list>

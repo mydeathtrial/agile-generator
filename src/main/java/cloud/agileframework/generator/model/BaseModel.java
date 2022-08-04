@@ -4,11 +4,7 @@ import cloud.agileframework.common.annotation.Remark;
 import cloud.agileframework.common.util.clazz.TypeReference;
 import cloud.agileframework.common.util.object.ObjectUtil;
 import cloud.agileframework.common.util.string.StringUtil;
-import cloud.agileframework.dictionary.annotation.Dictionary;
-import cloud.agileframework.dictionary.annotation.DirectionType;
-import cloud.agileframework.generator.model.config.PropertyBaseValue;
 import cloud.agileframework.generator.model.config.PropertyConfig;
-import cloud.agileframework.generator.model.config.PropertyDicValue;
 import cloud.agileframework.generator.properties.AnnotationType;
 import cloud.agileframework.generator.properties.GeneratorProperties;
 import cloud.agileframework.spring.util.BeanUtil;
@@ -121,7 +117,7 @@ public class BaseModel implements Serializable {
                     annotationToDesc((Annotation) annotationPropertyValue, consumer));
         } else if (annotationPropertyValue instanceof Class) {
             setImport((Class<?>) annotationPropertyValue);
-            stringValue = String.format("%s.class",((Class<?>) annotationPropertyValue).getSimpleName());
+            stringValue = String.format("%s.class", ((Class<?>) annotationPropertyValue).getSimpleName());
         } else if (annotationPropertyValue != null && annotationPropertyValue.getClass().isArray()) {
             Class<?> innerClass = TypeReference.extractArray(annotationPropertyValue.getClass());
 
@@ -173,17 +169,18 @@ public class BaseModel implements Serializable {
     }
 
     public void setRemarks(String remarks) {
-        this.remarks = deleteHiddenCharacter(remarks.substring(0,remarks.indexOf("\r\n")));
+        this.remarks = deleteHiddenCharacter(remarks.substring(0, remarks.indexOf("\r\n")));
         if (!StringUtil.isEmpty(this.remarks)) {
             setImport(Remark.class);
         }
 
-        String json = remarks.substring(remarks.indexOf("\r\n")+2);
-        PropertyConfig propertyConfig = ObjectUtil.to(json,new TypeReference<PropertyConfig>(){});
-        if(propertyConfig==null || !(this instanceof ColumnModel)){
+        String json = remarks.substring(remarks.indexOf("\r\n") + 2);
+        PropertyConfig propertyConfig = ObjectUtil.to(json, new TypeReference<PropertyConfig>() {
+        });
+        if (propertyConfig == null || !(this instanceof ColumnModel)) {
             return;
         }
-        ((ColumnModel)this).setPropertyConfig(propertyConfig);
+        ((ColumnModel) this).setPropertyConfig(propertyConfig);
     }
 
     public String deleteHiddenCharacter(String str) {
@@ -194,13 +191,13 @@ public class BaseModel implements Serializable {
     }
 
     public void addAnnotation(Annotation annotation, AnnotationType annotationType, Consumer<String> consumer) {
-        if (ArrayUtils.contains(getProperties().getAnnotation(),annotationType)) {
+        if (ArrayUtils.contains(getProperties().getAnnotation(), annotationType)) {
             consumer.accept(annotationToDesc(annotation, this::setImport));
         }
     }
 
     public void addAnnotation(Class<? extends Annotation> annotation, AnnotationType annotationType, Consumer<String> consumer) {
-        if (ArrayUtils.contains(getProperties().getAnnotation(),annotationType)) {
+        if (ArrayUtils.contains(getProperties().getAnnotation(), annotationType)) {
             consumer.accept(annotationToDesc(annotation, this::setImport));
         }
     }

@@ -1,6 +1,10 @@
 package cloud.agileframework.generator.config;
 
-import cloud.agileframework.generator.handler.*;
+import cloud.agileframework.generator.handler.AgileControllerGenerator;
+import cloud.agileframework.generator.handler.AgileServiceGenerator;
+import cloud.agileframework.generator.handler.EntityGenerator;
+import cloud.agileframework.generator.handler.ServiceGenerator;
+import cloud.agileframework.generator.handler.SwaggerGenerator;
 import cloud.agileframework.generator.properties.GeneratorProperties;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -18,24 +22,27 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties(value = {GeneratorProperties.class, DataSourceProperties.class})
 public class GeneratorConfig {
     @Bean
-    public EntityGenerator entityGenerator(){
+    public EntityGenerator entityGenerator() {
         return new EntityGenerator();
     }
+
     @Bean
-    public ServiceGenerator serviceGenerator(){
+    public ServiceGenerator serviceGenerator() {
         return new ServiceGenerator();
     }
+
     @Bean
-    public SwaggerGenerator swaggerGenerator(){
+    public SwaggerGenerator swaggerGenerator() {
         return new SwaggerGenerator();
     }
+
     @Bean
-    public AgileControllerGenerator agileAbstractBusinessGenerator(){
+    public AgileControllerGenerator agileAbstractBusinessGenerator() {
         return new AgileControllerGenerator();
     }
 
     @Bean
-    public AgileServiceGenerator agileServiceGenerator(){
+    public AgileServiceGenerator agileServiceGenerator() {
         return new AgileServiceGenerator();
     }
 }

@@ -8,7 +8,7 @@ import ${voPackageName}.${outVoName};
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 <#list importDesc as import>
-import ${import};
+    import ${import};
 </#list>
 
 /**

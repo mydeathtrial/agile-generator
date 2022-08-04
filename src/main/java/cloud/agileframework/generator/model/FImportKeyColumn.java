@@ -1,6 +1,9 @@
 package cloud.agileframework.generator.model;
 
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Locale;
 import java.util.Map;

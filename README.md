@@ -94,7 +94,8 @@ Process finished with exit code 0
 
 ##### 注意
 
-代码生成器是依赖配置文件读取数据库信息，所以运行时需要注意控制台开始打印的加载配置文件记录中是否包含你的 配置文件，配置文件会加载编译路径下的所有properties、yml配置文件，如下：
+代码生成器是依赖配置文件读取数据库信息，所以运行时需要注意控制台开始打印的加载配置文件记录中是否包含你的
+配置文件，配置文件会加载编译路径下的所有properties、yml配置文件，如下：
 
 ```
 15:26:55.779 [main] INFO cloud.agileframework.generator.AgileGenerator - 【1】开始生成源代码

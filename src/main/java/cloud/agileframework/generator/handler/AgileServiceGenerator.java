@@ -1,20 +1,20 @@
 package cloud.agileframework.generator.handler;
 
 import cloud.agileframework.common.util.file.FileUtil;
-import cloud.agileframework.generator.model.*;
+import cloud.agileframework.generator.model.CreateTimeColumn;
+import cloud.agileframework.generator.model.CreateUserColumn;
+import cloud.agileframework.generator.model.DeleteColumn;
+import cloud.agileframework.generator.model.TableModel;
+import cloud.agileframework.generator.model.UpdateTimeColumn;
+import cloud.agileframework.generator.model.UpdateUserColumn;
 import cloud.agileframework.generator.properties.AnnotationType;
 import cloud.agileframework.generator.properties.TYPE;
 import cloud.agileframework.generator.util.FreemarkerUtil;
 import freemarker.template.TemplateException;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Parameter;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import java.io.File;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 
 public class AgileServiceGenerator extends ByTableGenerator {
     @Override

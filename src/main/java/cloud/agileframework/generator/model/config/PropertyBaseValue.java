@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class PropertyBaseValue {
-    
+
     private PropertyType type;
     private String value;
 

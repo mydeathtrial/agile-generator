@@ -4,7 +4,7 @@ agile:
     entity-prefix: ''
     entity-suffix: Entity
     entity-url: E:\workspace-agile\agile-parent\agile-abstract-business\src\test\java\com\situation
-#    table-name: 'pub_situational_data;sys_%,obj_user,obj_account,obj_userlabel,obj_network,pub_dictionary,pub_configuration,pub_backup;etl_%,pub_data_model,pub_data_attributes;analy_%,def_%;obj_%;order_%;sys_operation_log;pub_message;pub_download;info_%'
+    #    table-name: 'pub_situational_data;sys_%,obj_user,obj_account,obj_userlabel,obj_network,pub_dictionary,pub_configuration,pub_backup;etl_%,pub_data_model,pub_data_attributes;analy_%,def_%;obj_%;order_%;sys_operation_log;pub_message;pub_download;info_%'
     annotation: LOMBOK,REMARK,JPA,HIBERNATE,AGILE,VALIDATE
     keywords: order,dec,desc,name,code,delete,password
     column-type:
@@ -12,7 +12,7 @@ agile:
       varchar: java.lang.String
       bigint: java.lang.String
     java_source_url: E:\workspace-agile\agile-parent\agile-abstract-business\src\test\java
-#    table-name: 'pub_situational_data'
+    #    table-name: 'pub_situational_data'
     table-name: 'sys_dept'
 spring:
   datasource:

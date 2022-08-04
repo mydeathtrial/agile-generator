@@ -6,7 +6,6 @@ import cloud.agileframework.common.util.clazz.TypeReference;
 import cloud.agileframework.common.util.db.DataBaseUtil;
 import cloud.agileframework.common.util.object.ObjectUtil;
 import cloud.agileframework.common.util.string.StringUtil;
-import cloud.agileframework.dictionary.DictionaryEngine;
 import cloud.agileframework.dictionary.annotation.Dictionary;
 import cloud.agileframework.dictionary.annotation.DirectionType;
 import cloud.agileframework.generator.model.config.PropertyBaseValue;
@@ -15,7 +14,13 @@ import cloud.agileframework.generator.model.config.PropertyDicValue;
 import cloud.agileframework.generator.properties.AnnotationType;
 import cloud.agileframework.spring.util.BeanUtil;
 import com.google.common.collect.Sets;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.apache.commons.lang3.ArrayUtils;
 import org.hibernate.annotations.ResultCheckStyle;
 import org.hibernate.annotations.SQLDelete;
@@ -81,7 +86,7 @@ public class TableModel extends BaseModel {
     private boolean haveSetMethod;
     private boolean haveGetMethod;
     private boolean haveEqualsAndHashCodeMethod = true;
-    
+
     //外键
     private Set<FImportKeyColumn> fImportKeyColumns;
     private Set<FExportKeyColumn> fExportKeyColumns;
@@ -106,7 +111,7 @@ public class TableModel extends BaseModel {
     public void setTableName(String tableName) {
         this.tableName = tableName;
         this.modelName = tableName.substring(0, tableName.indexOf("_"));
-        this.mvcPackageName = tableName.replaceFirst("_bt_", "_").substring(tableName.indexOf("_") + 1).replace("_","");
+        this.mvcPackageName = tableName.replaceFirst("_bt_", "_").substring(tableName.indexOf("_") + 1).replace("_", "");
         this.javaName = StringUtil.toUpperName(tableName);
         this.lowerName = StringUtil.toLowerName(tableName);
 
@@ -135,7 +140,7 @@ public class TableModel extends BaseModel {
                 columnModel = ObjectUtil.getObjectFromMap(UpdateUserColumn.class, column);
             } else if (ParentKeyColumn.is(column)) {
                 columnModel = ObjectUtil.getObjectFromMap(ParentKeyColumn.class, column);
-            } else if (FImportKeyColumn.is(column,fImportKeyColumns)) {
+            } else if (FImportKeyColumn.is(column, fImportKeyColumns)) {
                 columnModel = ObjectUtil.getObjectFromMap(FImportKeyColumn.class, column);
             } else {
                 columnModel = ObjectUtil.getObjectFromMap(ColumnModel.class, column);
@@ -162,7 +167,7 @@ public class TableModel extends BaseModel {
         this.outVoName = javaName + "OutVo";
         this.entityCenterLineName = StringUtil.toUnderline(javaName).replace(Constant.RegularAbout.UNDER_LINE, Constant.RegularAbout.MINUS).toLowerCase();
 
-        if (ArrayUtils.contains(getProperties().getAnnotation(),AnnotationType.JPA) || ArrayUtils.contains(getProperties().getAnnotation(),AnnotationType.VALIDATE)) {
+        if (ArrayUtils.contains(getProperties().getAnnotation(), AnnotationType.JPA) || ArrayUtils.contains(getProperties().getAnnotation(), AnnotationType.VALIDATE)) {
             addAnnotation(Setter.class, AnnotationType.LOMBOK, desc -> getAnnotationDesc().add(desc));
             addAnnotation(Builder.class, AnnotationType.LOMBOK, desc -> getAnnotationDesc().add(desc));
             addAnnotation(ToString.class, AnnotationType.LOMBOK, desc -> getAnnotationDesc().add(desc));
@@ -216,11 +221,12 @@ public class TableModel extends BaseModel {
     }
 
     private ColumnModel parseNewColumn(ColumnModel c, PropertyBaseValue value) {
-        ColumnModel c1 = ObjectUtil.to(c,new TypeReference<DicColumn>(){});
-        c1.setColumnName(c.getColumnName()+"_name");
+        ColumnModel c1 = ObjectUtil.to(c, new TypeReference<DicColumn>() {
+        });
+        c1.setColumnName(c.getColumnName() + "_name");
         c1.getAnnotationDesc().clear();
         c1.getFieldAnnotationDesc().clear();
-        c1.addAnnotation(new Dictionary(){
+        c1.addAnnotation(new Dictionary() {
             @Override
             public Class<? extends Annotation> annotationType() {
                 return Dictionary.class;
@@ -253,14 +259,14 @@ public class TableModel extends BaseModel {
 
             @Override
             public String defaultValue() {
-                return Dictionary.DEFAULT_NAME;
+                return Constant.AgileAbout.DIC_TRANSLATE_FAIL_NULL_VALUE;
             }
 
             @Override
             public String dataSource() {
-                return DictionaryEngine.DICTIONARY_DATA_CACHE;
+                return Constant.AgileAbout.DIC_DATASOURCE;
             }
-        },AnnotationType.AGILE,desc->c1.getDicAnnotationDesc().add(desc));
+        }, AnnotationType.AGILE, desc -> c1.getDicAnnotationDesc().add(desc));
         return c1;
     }
 
@@ -303,19 +309,20 @@ public class TableModel extends BaseModel {
         });
     }
 
-    private void addFImportKeyColumns(FImportKeyColumn columnModel){
-        if(fImportKeyColumns == null){
+    private void addFImportKeyColumns(FImportKeyColumn columnModel) {
+        if (fImportKeyColumns == null) {
             fImportKeyColumns = Sets.newHashSet();
         }
         fImportKeyColumns.add(columnModel);
     }
-    private void addFExportKeyColumns(FExportKeyColumn columnModel){
-        if(fExportKeyColumns == null){
+
+    private void addFExportKeyColumns(FExportKeyColumn columnModel) {
+        if (fExportKeyColumns == null) {
             fExportKeyColumns = Sets.newHashSet();
         }
         fExportKeyColumns.add(columnModel);
     }
-    
+
     private void hibernateAnnotationHandler() {
         Set<PrimaryKeyColumn> primaryColumns = columns.stream().filter(c -> c instanceof PrimaryKeyColumn).map(c -> (PrimaryKeyColumn) c).collect(Collectors.toSet());
         Set<DeleteColumn> deleteColumns = columns.stream().filter(c -> c instanceof DeleteColumn).map(c -> (DeleteColumn) c).collect(Collectors.toSet());

@@ -5,6 +5,6 @@ import freemarker.template.TemplateException;
 
 import java.io.IOException;
 
-public abstract class ByTableGenerator extends AbstractGenerator{
+public abstract class ByTableGenerator extends AbstractGenerator {
     public abstract void generateFile(TableModel tableModel) throws TemplateException, IOException;
 }

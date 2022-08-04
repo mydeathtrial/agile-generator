@@ -1,8 +1,6 @@
 package cloud.agileframework.generator.properties;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.math.BigDecimal;
@@ -10,7 +8,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author 佟盟
