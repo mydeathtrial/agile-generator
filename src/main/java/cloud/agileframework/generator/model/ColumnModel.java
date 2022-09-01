@@ -196,16 +196,6 @@ public class ColumnModel extends BaseModel {
             public boolean ignoreCompare() {
                 return false;
             }
-
-            @Override
-            public boolean excelHead() {
-                return true;
-            }
-
-            @Override
-            public int sort() {
-                return 0;
-            }
         }, AnnotationType.REMARK, desc -> getFieldAnnotationDesc().add(desc));
     }
 
