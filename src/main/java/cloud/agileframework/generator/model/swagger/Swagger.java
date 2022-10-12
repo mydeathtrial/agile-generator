@@ -55,7 +55,7 @@ public class Swagger {
 
     public Swagger(List<TableModel> tableModels) {
         definitions.put("HttpStatus", SwaggerApi.SwaggerProperty.builder().type(SwaggerPropertyType.string).example("OK").enums(Arrays.stream(HttpStatus.class.getDeclaredFields()).map(Field::getName).collect(Collectors.toSet())).build());
-        tags = tableModels.parallelStream()
+        tags = tableModels.stream()
                 .map(t -> Tags.builder()
                         .name(t.getRemarks())
                         .description("管理" + t.getRemarks())
